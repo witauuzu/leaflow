@@ -17,7 +17,7 @@ onMounted(async () => {
 
 <template>
   <div class="p-8 text-center">
-    <h1 class="text-2xl font-bold text-green-600 mb-4">Leaflow Nutrition Tracker</h1>
+    <h1 class="text-2xl font-bold text-green-600 mb-4">Leaflow</h1>
     <p class="p-4 bg-gray-100 rounded-lg inline-block border">
       Status Backend: <span class="font-semibold">{{ pesanBackend }}</span>
     </p>
