@@ -1,20 +1,39 @@
+
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import navbar from './components/navbar.vue'
-import sidebar from './components/sidebar.vue' // Sesuaikan dengan lokasi navbar dashboard Anda
+
+import Navbar from './components/navbar.vue'
+import Sidebar from './components/sidebar.vue'
 
 const route = useRoute()
 
-const isDashboard = computed(() => route.path.startsWith('/dashboard'))
+const isDashboard = computed(() =>
+  route.path.startsWith('/dashboard')
+)
+
+const isAuthPage = computed(() =>
+  ['/login', '/register', '/verify-email'].includes(route.path)
+)
 </script>
 
 <template>
   <div>
-    <!-- Navbar akan otomatis berubah tergantung halamannya -->
-    <sidebar v-if="isDashboard" />
-    <navbar v-else />
+    <!-- Halaman autentikasi tanpa navbar dan sidebar -->
+    <template v-if="isAuthPage">
+      <RouterView />
+    </template>
 
-    <router-view></router-view>
+    <!-- Halaman dashboard menggunakan sidebar -->
+    <template v-else-if="isDashboard">
+      <Sidebar />
+      <RouterView />
+    </template>
+
+    <!-- Halaman website lainnya menggunakan navbar -->
+    <template v-else>
+      <Navbar />
+      <RouterView />
+    </template>
   </div>
 </template>
