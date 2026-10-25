@@ -102,6 +102,8 @@ const handleLogin = async () => {
               Password
             </label>
 
+
+
             <div class="relative">
               <input
                 id="login-password"
@@ -121,6 +123,15 @@ const handleLogin = async () => {
                 {{ showPassword ? 'Hide' : 'Show' }}
               </button>
             </div>
+          </div>
+
+          <div class="flex justify-end">
+            <RouterLink
+              to="/forgot-password"
+              class="text-sm font-medium text-[#388E3C] hover:underline"
+            >
+              Forgot password?
+            </RouterLink>
           </div>
 
           <p v-if="message" role="alert" class="text-sm text-red-600">

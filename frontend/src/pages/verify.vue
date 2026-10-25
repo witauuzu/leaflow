@@ -1,4 +1,3 @@
-
 <script setup>
 import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'

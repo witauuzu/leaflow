@@ -13,7 +13,7 @@ const isDashboard = computed(() =>
 )
 
 const isAuthPage = computed(() =>
-  ['/login', '/register', '/verify-email'].includes(route.path)
+  ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password'].includes(route.path)
 )
 </script>
 

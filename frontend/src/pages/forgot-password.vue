@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -44,15 +43,10 @@ const handleSubmit = async () => {
 <template>
   <main class="flex min-h-dvh items-center justify-center bg-[#F7FAF6] px-5 py-8">
     <section class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-10">
-      <RouterLink to="/login" class="text-xl font-bold text-[#388E3C]">
-        leaflow
+      <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
+        <img src="../assets/logo.png" alt="Leaflow" width="100px" text>
       </RouterLink>
-
-      <div class="mt-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5E9] text-2xl">
-        ✉
-      </div>
-
-      <h1 class="mt-6 text-2xl font-semibold text-gray-900">
+      <h1 class="mt-6 text-2xl font-semibold text-gray-900 text-center">
         Forgot your password?
       </h1>
 
