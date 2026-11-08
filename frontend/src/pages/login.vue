@@ -161,7 +161,7 @@ const handleLogin = async () => {
       <!-- FORM CONTENT -->
       <div class="my-auto mx-auto w-full max-w-md">
 
-        <h1 class="mb-6 text-center text-2xl font-semibold leading-tight text-[#263D2A]">
+        <h1 class="mb-6 text-center text-2xl font-semibold leading-tight text-(--color-text)">
           Welcome Back
         </h1>
 

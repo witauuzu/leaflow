@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { Eye, EyeOff } from 'lucide-vue-next'
 import { supabase } from '../lib/supabase'
 
 const router = useRouter()
 
 const password = ref('')
-const confirmPassword = ref('')
+const showPassword = ref(false)
 const loading = ref(false)
 const checkingSession = ref(true)
 const recoveryReady = ref(false)
@@ -15,12 +16,20 @@ const success = ref(false)
 
 let authListener
 
+// Password requirements
+const passwordRules = computed(() => [
+  { label: 'Minimum 8 characters', valid: password.value.length >= 8 },
+  {
+    label: 'One special character',
+    valid: /[^A-Za-z0-9\s]/.test(password.value),
+  },
+  { label: 'One number', valid: /\d/.test(password.value) },
+  { label: 'One uppercase character', valid: /[A-Z]/.test(password.value) },
+  { label: 'One lowercase character', valid: /[a-z]/.test(password.value) },
+])
+
 const passwordValid = computed(() =>
-  password.value.length >= 8 &&
-  /[a-z]/.test(password.value) &&
-  /[A-Z]/.test(password.value) &&
-  /\d/.test(password.value) &&
-  /[^A-Za-z0-9\s]/.test(password.value)
+  passwordRules.value.every((rule) => rule.valid)
 )
 
 onMounted(async () => {
@@ -60,12 +69,6 @@ const handleReset = async () => {
     message.value = 'Please meet all password requirements.'
     return
   }
-
-  if (password.value !== confirmPassword.value) {
-    message.value = 'Passwords do not match.'
-    return
-  }
-
   loading.value = true
 
   try {
@@ -92,13 +95,13 @@ const handleReset = async () => {
 </script>
 
 <template>
-  <main class="flex min-h-dvh items-center justify-center bg-[#F7FAF6] px-5 py-8">
-    <section class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-10">
+  <main class="flex min-h-dvh items-center justify-center">
+    <section class="w-full max-w-md">
       <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
         <img src="../assets/logo.png" alt="Leaflow" width="100px" text>
       </RouterLink>
 
-      <h1 class="mt-8 text-2xl font-semibold text-gray-900 text-center">
+      <h1 class="mt-5 text-2xl font-semibold text-gray-900 text-center">
         Create a new password
       </h1>
 
@@ -106,83 +109,68 @@ const handleReset = async () => {
         Choose a strong password to secure your account
       </p>
 
-      <p v-if="checkingSession" class="mt-6 text-sm text-gray-500" role="status">
+      <p v-if="checkingSession" class="mt-6 text-sm text-gray-500 text-center" role="status">
         Verifying your reset link...
       </p>
 
       <template v-else-if="!success">
         <form @submit.prevent="handleReset" class="mt-7 space-y-5">
-          <div>
-            <label for="new-password" class="mb-2 block text-sm font-medium text-gray-700">
-              New password
-            </label>
+          <div class="relative">
             <input
               id="new-password"
               v-model="password"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               autocomplete="new-password"
+              placeholder="Enter your new password"
               required
-              class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#66BB6A] focus:ring-2 focus:ring-[#66BB6A]/20"
+              class="sign-input pr-12"
             />
-          </div>
-
-          <ul class="space-y-2 text-xs">
-            <li
-              v-for="rule in [
-                { label: 'At least 8 characters', valid: password.length >= 8 },
-                { label: 'One uppercase letter', valid: /[A-Z]/.test(password) },
-                { label: 'One lowercase letter', valid: /[a-z]/.test(password) },
-                { label: 'One number', valid: /\\d/.test(password) },
-                { label: 'One special character', valid: /[^A-Za-z0-9\\s]/.test(password) },
-              ]"
-              :key="rule.label"
-              :class="rule.valid ? 'text-[#388E3C]' : 'text-gray-400'"
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute inset-y-0 right-3 flex items-center text-[#a7a7a7] transition"
+              :aria-label="showPassword ? 'Hide password' : 'Show password'"
             >
-              {{ rule.valid ? '✓' : '○' }} {{ rule.label }}
-            </li>
-          </ul>
-
-          <div>
-            <label for="confirm-password" class="mb-2 block text-sm font-medium text-gray-700">
-              Confirm new password
-            </label>
-            <input
-              id="confirm-password"
-              v-model="confirmPassword"
-              type="password"
-              autocomplete="new-password"
-              required
-              class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#66BB6A] focus:ring-2 focus:ring-[#66BB6A]/20"
-            />
+              <Eye v-if="!showPassword" :size="20" :stroke-width="1.7" />
+              <EyeOff v-else :size="20" :stroke-width="1.7" />
+            </button>
           </div>
 
-          <p v-if="message" role="alert" class="text-sm text-red-600">
-            {{ message }}
-          </p>
+          <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
+            <p
+              v-for="rule in passwordRules"
+              :key="rule.label"
+              class="flex items-center gap-2 text-xs font-extralight"
+              :class="rule.valid ? 'text-[#388E3C]' : 'text-[#a7a7a7]'"
+            >
+              <span>{{ rule.valid ? '✓' : '○' }}</span>
+              {{ rule.label }}
+              </p>
+          </div>
 
           <button
             type="submit"
-            :disabled="loading || !recoveryReady"
-            class="w-full rounded-xl bg-[#66BB6A] py-3.5 font-semibold text-white hover:bg-[#4CAF50] disabled:opacity-60"
+            :disabled="loading"
+            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
           >
-            {{ loading ? 'Updating...' : 'Update Password' }}
+            {{ loading ? 'Update password...' : 'Update Password' }}
           </button>
         </form>
       </template>
 
-      <div v-if="success" class="mt-6">
+      <div v-if="success" class="mt-6 text-center">
         <p role="status" class="text-sm leading-6 text-[#388E3C]">
           {{ message }}
         </p>
         <RouterLink
           to="/login"
-          class="mt-5 block rounded-xl bg-[#66BB6A] py-3.5 text-center font-semibold text-white hover:bg-[#4CAF50]"
+          class="mt-5 block rounded-lg bg-(--color-primary) py-3 text-center text-sm font-reguler text-white hover:bg-[#4CAF50]"
         >
           Back to Login
         </RouterLink>
       </div>
 
-      <p v-if="!checkingSession && !recoveryReady && !success" class="mt-5 text-sm text-gray-500">
+      <p v-if="!checkingSession && !recoveryReady && !success" class="mt-5 text-sm text-center text-gray-500">
         <RouterLink to="/forgot-password" class="font-medium text-[#388E3C] hover:underline">
           Request a new reset link
         </RouterLink>

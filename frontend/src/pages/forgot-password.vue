@@ -41,26 +41,22 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <main class="flex min-h-dvh items-center justify-center bg-[#F7FAF6] px-5 py-8">
-    <section class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-10">
+  <main class="flex min-h-dvh items-center justify-center">
+    <section class="w-full max-w-md">
       <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
         <img src="../assets/logo.png" alt="Leaflow" width="100px" text>
       </RouterLink>
-      <h1 class="mt-6 text-2xl font-semibold text-gray-900 text-center">
+      <h1 class="mt-5 text-2xl font-semibold text-gray-900 text-center">
         Forgot your password?
       </h1>
 
-      <p class="mt-3 text-sm leading-6 text-gray-500">
+      <p class="mt-3 text-sm leading-6 text-gray-500 text-center">
         No worries! Enter the email address associated with your account
         and we'll send you a password reset link.
       </p>
 
       <form @submit.prevent="handleSubmit" class="mt-7 space-y-4">
         <div>
-          <label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-            Email address
-          </label>
-
           <input
             id="email"
             v-model="email"
@@ -68,7 +64,7 @@ const handleSubmit = async () => {
             autocomplete="email"
             placeholder="you@example.com"
             required
-            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#66BB6A] focus:ring-2 focus:ring-[#66BB6A]/20"
+            class="sign-input"
           />
         </div>
 
@@ -81,18 +77,18 @@ const handleSubmit = async () => {
           {{ message }}
         </p>
 
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full rounded-xl bg-[#66BB6A] py-3.5 font-semibold text-white hover:bg-[#4CAF50] disabled:opacity-60"
-        >
-          {{ loading ? 'Sending...' : 'Send Reset Link' }}
-        </button>
+          <button
+            type="submit"
+            :disabled="loading"
+            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
+          >
+            {{ loading ? 'Send link...' : 'Send Reset Link' }}
+          </button>
       </form>
 
       <RouterLink
         to="/login"
-        class="mt-6 block text-center text-sm font-medium text-[#388E3C] hover:underline"
+        class="mt-5 block text-center text-sm font-reguler text-(--color-primary) hover:underline"
       >
         Back to Login
       </RouterLink>
