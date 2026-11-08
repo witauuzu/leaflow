@@ -1,7 +1,9 @@
-
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, Info, AlertTriangle,
+} from 'lucide-vue-next'
+import loginImage from '../assets/login.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,10 +13,49 @@ const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
 const message = ref('')
+const messageType = ref('error')
 
+// Alert styles
+const messageStyle = computed(() => {
+  const styles = {
+    success: {
+      container:
+        'border-[var(--color-success)]/30 bg-[var(--color-success)]/10',
+      icon: 'text-[var(--color-success)]',
+      text: 'text-[var(--color-success)]',
+      iconComponent: CheckCircle2,
+    },
+    info: {
+      container:
+        'border-[var(--color-info)]/30 bg-[var(--color-info)]/10',
+      icon: 'text-[var(--color-info)]',
+      text: 'text-[var(--color-info)]',
+      iconComponent: Info,
+    },
+    warning: {
+      container:
+        'border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10',
+      icon: 'text-[var(--color-warning)]',
+      text: 'text-[var(--color-warning)]',
+      iconComponent: AlertTriangle,
+    },
+    error: {
+      container:
+        'border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10',
+      icon: 'text-[var(--color-danger)]',
+      text: 'text-[var(--color-danger)]',
+      iconComponent: AlertCircle,
+    },
+  }
+
+  return styles[messageType.value]
+})
+
+// Check email verification redirect
 onMounted(() => {
   if (route.query.verified === 'true') {
-    message.value = 'Email berhasil diverifikasi. Silakan login.'
+    messageType.value = 'success'
+    message.value = 'Email verified successfully. You can now log in.'
   }
 
   if (typeof route.query.email === 'string') {
@@ -22,8 +63,10 @@ onMounted(() => {
   }
 })
 
+// Login
 const handleLogin = async () => {
   message.value = ''
+  messageType.value = 'error'
   loading.value = true
 
   try {
@@ -44,13 +87,26 @@ const handleLogin = async () => {
     const data = await response.json()
 
     if (!response.ok) {
-      message.value = data.message || 'Login gagal.'
+      // Differentiate login errors based on backend response
+      if (data.code === 'EMAIL_NOT_REGISTERED') {
+        messageType.value = 'warning'
+        message.value =
+          'No account found with this email. Please sign up first.'
+      } else if (data.code === 'INVALID_PASSWORD') {
+        messageType.value = 'error'
+        message.value = 'Incorrect password. Please try again.'
+      } else if (data.code === 'EMAIL_NOT_VERIFIED') {
+        messageType.value = 'info'
+        message.value =
+          'Please verify your email address before logging in.'
+      } else {
+        messageType.value = 'error'
+        message.value = data.message || 'Login failed. Please try again.'
+      }
       return
     }
 
-    // Demo awal: simpan sesi di penyimpanan browser.
-    // Untuk aplikasi produksi, gunakan pengelolaan sesi
-    // yang aman dan terintegrasi dengan Supabase Auth.
+    // Save session
     if (data.session) {
       localStorage.setItem(
         'leaflow-session',
@@ -58,9 +114,12 @@ const handleLogin = async () => {
       )
     }
 
-    await router.push('/')
-  } catch {
-    message.value = 'Gagal terhubung ke server. Silakan coba lagi.'
+    await router.push('/dashboard')
+  } catch (error) {
+    console.error(error)
+
+    messageType.value = 'error'
+    message.value = 'Unable to connect to the server. Please try again.'
   } finally {
     loading.value = false
   }
@@ -69,41 +128,57 @@ const handleLogin = async () => {
 
 <template>
   <main class="flex min-h-screen w-full flex-col md:flex-row">
+    <!-- IMAGE SECTION -->
     <section
-      class="flex w-full items-center justify-center bg-white px-6 py-10 sm:px-10 md:w-[45%] lg:px-12"
+      class="relative hidden min-h-screen items-end justify-center overflow-hidden bg-(--color-primary) md:flex md:w-[50%]"
     >
-      <div class="w-full max-w-md">
-        <h1 class="mt-10 text-3xl font-semibold text-gray-900 sm:text-4xl">
+      <img
+        :src="loginImage"
+        alt="Healthy lifestyle"
+        class="h-auto w-[75%] object-contain"
+      />
+    </section>
+
+    <!-- FORM SECTION -->
+    <section
+      class="relative flex min-h-screen w-full flex-col bg-white px-6 py-8 sm:px-10 md:w-[50%] lg:px-12"
+    >
+      <!-- BACK BUTTON -->
+      <div>
+        <RouterLink
+          to="/"
+          class="inline-flex items-center gap-2 text-sm text-[#263D2A] transition hover:text-[#388E3C]"
+        >
+          <span
+            class="flex h-7 w-7 items-center justify-center rounded-full border border-[#868889] hover:border-(--color-hover)"
+          >
+            <ArrowLeft :size="15" :stroke-width="1" />
+          </span>
+          Back
+        </RouterLink>
+      </div>
+
+      <!-- FORM CONTENT -->
+      <div class="my-auto mx-auto w-full max-w-md">
+
+        <h1 class="mb-6 text-center text-2xl font-semibold leading-tight text-[#263D2A]">
           Welcome Back
         </h1>
 
-        <p class="mt-3 text-sm leading-6 text-gray-500 sm:text-base">
-          Continue your healthy journey with Leaflow.
-        </p>
-
-        <form @submit.prevent="handleLogin" class="mt-8 space-y-5">
+        <form @submit.prevent="handleLogin" class="space-y-5">
           <div>
-            <label for="login-email" class="mb-2 block text-sm font-medium text-gray-700">
-              Email
-            </label>
             <input
               id="login-email"
               v-model="email"
               type="email"
-              autocomplete="username"
+              autocomplete="email"
               required
               placeholder="Enter your email"
-              class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#66BB6A] focus:ring-2 focus:ring-[#66BB6A]/20"
+              class="sign-input"
             />
           </div>
 
           <div>
-            <label for="login-password" class="mb-2 block text-sm font-medium text-gray-700">
-              Password
-            </label>
-
-
-
             <div class="relative">
               <input
                 id="login-password"
@@ -118,9 +193,10 @@ const handleLogin = async () => {
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute inset-y-0 right-3 text-xs font-medium text-gray-500"
+                class="absolute inset-y-0 right-3 text-xs font-medium text-[#a7a7a7]"
               >
-                {{ showPassword ? 'Hide' : 'Show' }}
+                <Eye v-if="!showPassword" :size="20" :stroke-width="1.7" />
+                <EyeOff v-else :size="20" :stroke-width="1.7" />
               </button>
             </div>
           </div>
@@ -128,48 +204,50 @@ const handleLogin = async () => {
           <div class="flex justify-end">
             <RouterLink
               to="/forgot-password"
-              class="text-sm font-medium text-[#388E3C] hover:underline"
+              class="text-sm font-regular text-(--color-primary) hover:underline"
             >
               Forgot password?
             </RouterLink>
           </div>
 
-          <p v-if="message" role="alert" class="text-sm text-red-600">
-            {{ message }}
-          </p>
+          <!-- MESSAGE -->
+          <div
+            v-if="message"
+            role="alert"
+            class="flex items-start gap-3 rounded-lg border p-3"
+            :class="messageStyle.container"
+          >
+            <component
+              :is="messageStyle.iconComponent"
+              :size="20"
+              :stroke-width="1.8"
+              class="mt-0.5 shrink-0"
+              :class="messageStyle.icon"
+            />
+
+            <p
+              class="text-xs leading-relaxed"
+              :class="messageStyle.text"
+            >
+              {{ message }}
+            </p>
+          </div>
 
           <button
             type="submit"
             :disabled="loading"
-            class="w-full rounded-xl bg-[#66BB6A] py-3.5 font-semibold text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
+            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
           >
-            {{ loading ? 'Signing in...' : 'Log In' }}
+            {{ loading ? 'Log in...' : 'Log in' }}
           </button>
         </form>
 
-        <p class="mt-7 text-center text-sm text-gray-500">
+        <p class="mt-3 text-center text-xs text-[#a7a7a7]">
           Don't have an account?
-          <RouterLink to="/register" class="font-semibold text-[#388E3C] hover:underline">
+          <RouterLink to="/register" class="font-medium text-(--color-primary) hover:underline">
             Sign up
           </RouterLink>
         </p>
-      </div>
-    </section>
-
-    <section class="relative hidden min-h-screen overflow-hidden bg-[#EAF4E8] md:block md:w-[55%]">
-      <img
-        src="../assets/login.png"
-        alt="Healthy lifestyle"
-        class="absolute inset-0 h-full w-full object-cover"
-      />
-
-      <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-
-      <div class="absolute bottom-12 left-10 right-10 text-white lg:bottom-16 lg:left-14">
-        <p class="text-sm font-medium uppercase tracking-[0.2em]">Welcome to Leaflow</p>
-        <h2 class="mt-3 max-w-lg text-3xl font-semibold leading-snug lg:text-4xl">
-          Find your balance, one day at a time.
-        </h2>
       </div>
     </section>
   </main>

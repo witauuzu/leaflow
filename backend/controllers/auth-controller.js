@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase');
+const supabaseAdmin = supabase.supabaseAdmin;
 
 const FRONTEND_URL =
   process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -42,13 +43,53 @@ exports.register = async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
+    // Periksa apakah email sudah terdaftar
+    let page = 1;
+    let emailExists = false;
+
+    while (true) {
+      const { data: usersData, error: usersError } =
+        await supabaseAdmin.auth.admin.listUsers({
+          page,
+          perPage: 1000,
+        });
+
+      if (usersError) {
+        console.error('Check registered email error:', usersError.message);
+
+        return res.status(500).json({
+          status: 'fail',
+          message: 'Unable to verify email. Please try again later.',
+        });
+      }
+
+      emailExists = usersData.users.some(
+        (user) => user.email?.toLowerCase() === normalizedEmail
+      );
+
+      if (emailExists || usersData.users.length < 1000) {
+        break;
+      }
+
+      page++;
+    }
+
+    if (emailExists) {
+      return res.status(409).json({
+        status: 'fail',
+        code: 'EMAIL_ALREADY_USED',
+        message: 'This email is already registered. Please log in or use another email.',
+      });
+    }
+
+    // Lanjutkan proses registrasi
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
       options: {
         emailRedirectTo: `${FRONTEND_URL}/login?verified=true`,
         data: {
-          username: username.trim(),
+          display_name: username.trim(),
         },
       },
     });
@@ -88,7 +129,6 @@ exports.register = async (req, res) => {
 };
 
 // Login pengguna
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -106,30 +146,96 @@ exports.login = async (req, res) => {
       });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // 1. Periksa apakah email terdaftar
+    let page = 1;
+    let registeredUser = null;
+
+    while (true) {
+      const { data: usersData, error: usersError } =
+        await supabaseAdmin.auth.admin.listUsers({
+          page,
+          perPage: 1000,
+        });
+
+      if (usersError) {
+        console.error('Check registered email error:', usersError.message);
+
+        return res.status(500).json({
+          status: 'fail',
+          code: 'SERVER_ERROR',
+          message: 'Unable to verify account. Please try again later.',
+        });
+      }
+
+      registeredUser = usersData.users.find(
+        (user) => user.email?.toLowerCase() === normalizedEmail
+      );
+
+      if (registeredUser || usersData.users.length < 1000) {
+        break;
+      }
+
+      page++;
+    }
+
+    // Email tidak ditemukan
+    if (!registeredUser) {
+      return res.status(401).json({
+        status: 'fail',
+        code: 'EMAIL_NOT_REGISTERED',
+        message: 'No account found with this email. Please sign up first.',
+      });
+    }
+
+    // 2. Periksa email dan password menggunakan Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       password,
     });
 
     if (error) {
-      // Supabase sengaja tidak selalu membedakan email tidak
-      // terdaftar dan password salah.
-      return res.status(401).json({
+      // Email belum diverifikasi
+      if (
+        error.code === 'email_not_confirmed' ||
+        /email not confirmed/i.test(error.message || '')
+      ) {
+        return res.status(403).json({
+          status: 'fail',
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Please verify your email address before logging in.',
+        });
+      }
+
+      // Password salah
+      if (/invalid login credentials/i.test(error.message || '')) {
+        return res.status(401).json({
+          status: 'fail',
+          code: 'INVALID_PASSWORD',
+          message: 'Incorrect password. Please try again.',
+        });
+      }
+
+      console.error('Login authentication error:', error.message);
+
+      return res.status(400).json({
         status: 'fail',
-        code: 'INVALID_CREDENTIALS',
-        message: 'Invalid email or password. Please try again.',
+        code: 'LOGIN_ERROR',
+        message: 'Unable to log in. Please try again later.',
       });
     }
 
+    // 3. Pastikan email sudah diverifikasi
     if (!data.user?.email_confirmed_at) {
       return res.status(403).json({
         status: 'fail',
         code: 'EMAIL_NOT_VERIFIED',
-        message:
-          'Please verify your email address before logging in.',
+        message: 'Please verify your email address before logging in.',
       });
     }
 
+    // 4. Login berhasil
     return res.status(200).json({
       status: 'success',
       message: 'Login successful.',
@@ -150,7 +256,6 @@ exports.login = async (req, res) => {
     });
   }
 };
-
 
 exports.forgotPassword = async (req, res) => {
   try {
