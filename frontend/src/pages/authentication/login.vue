@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, Info, AlertTriangle,
 } from 'lucide-vue-next'
-import loginImage from '../assets/login.png'
+import loginImage from '../../assets/login.png'
 
 const route = useRoute()
 const router = useRouter()

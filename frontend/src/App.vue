@@ -19,18 +19,23 @@ const isAuthPage = computed(() =>
 
 <template>
   <div>
-    <!-- Halaman autentikasi tanpa navbar dan sidebar -->
+    <!-- Authentication Pages -->
     <template v-if="isAuthPage">
       <RouterView />
     </template>
 
-    <!-- Halaman dashboard menggunakan sidebar -->
+    <!-- Dashboard Pages -->
     <template v-else-if="isDashboard">
-      <Sidebar />
-      <RouterView />
+      <div class="flex min-h-screen">
+        <Sidebar />
+
+        <main class="min-w-0 flex-1">
+          <RouterView />
+        </main>
+      </div>
     </template>
 
-    <!-- Halaman website lainnya menggunakan navbar -->
+    <!-- Landing Page -->
     <template v-else>
       <Navbar />
       <RouterView />

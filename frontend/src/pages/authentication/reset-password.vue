@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { Eye, EyeOff } from 'lucide-vue-next'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../../lib/supabase'
 
 const router = useRouter()
 

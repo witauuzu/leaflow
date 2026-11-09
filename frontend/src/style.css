@@ -14,6 +14,22 @@
   --color-danger: #EA3C46;
   --color-warning: #FFAB1C;
   --color-success: #71B939;
+
+  /* Sidebar Gradient */
+  --sidebar-gradient-start: #90D68D;
+  --sidebar-gradient-middle: #66BB83;
+  --sidebar-gradient-end: #4A8860;
+
+  --sidebar-gradient: linear-gradient(
+    180deg,
+    var(--sidebar-gradient-start) 0%,
+    var(--sidebar-gradient-middle) 50%,
+    var(--sidebar-gradient-end) 100%
+  );
+
+  /* Sidebar Active Menu */
+  --sidebar-active-bg: rgba(255, 255, 255, 0.15);
+  --sidebar-active-border: rgba(255, 255, 255, 0.25);
 }
 
 * {

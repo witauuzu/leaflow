@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-vue-next'
-import signupImage from '../assets/signup.png'
+import signupImage from '../../assets/signup.png'
 
 const router = useRouter()
 

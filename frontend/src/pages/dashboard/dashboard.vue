@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-gray-50 text-center px-4">
-    <h1>Dasboard</h1>
+  <div class="h-full flex flex-col items-center justify-center text-center">
+    <h1>Home</h1>
   </div>
 </template>
