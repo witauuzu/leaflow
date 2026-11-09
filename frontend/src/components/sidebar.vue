@@ -6,7 +6,6 @@ import HomeLight from '../assets/icons/Light/Home.svg'
 import ExploreLight from '../assets/icons/Light/Explore.svg'
 import PlannerLight from '../assets/icons/Light/Planner.svg'
 import CalenderLight from '../assets/icons/Light/Calender.svg'
-import PantryLight from '../assets/icons/Light/Pantry.svg'
 import TrackLight from '../assets/icons/Light/Track.svg'
 import ProfileLight from '../assets/icons/Light/Profile.svg'
 
@@ -15,7 +14,6 @@ import HomeBold from '../assets/icons/Bold/Home.svg'
 import ExploreBold from '../assets/icons/Bold/Explore.svg'
 import PlannerBold from '../assets/icons/Bold/Planner.svg'
 import CalenderBold from '../assets/icons/Bold/Calender.svg'
-import PantryBold from '../assets/icons/Bold/Pantry.svg'
 import TrackBold from '../assets/icons/Bold/Track.svg'
 import ProfileBold from '../assets/icons/Bold/Profile.svg'
 
@@ -45,12 +43,6 @@ const menus = [
     to: '/dashboard/calendar',
     light: CalenderLight,
     bold: CalenderBold,
-  },
-  {
-    name: 'Pantry',
-    to: '/dashboard/pantry',
-    light: PantryLight,
-    bold: PantryBold,
   },
   {
     name: 'Track',
