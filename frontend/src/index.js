@@ -2,13 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import landingPage from './pages/landing-page.vue'
 import login from './pages/authentication/login.vue'
 import register from './pages/authentication/signup.vue'
-import dashboard from './pages/dashboard/dashboard.vue'
-import explore from './pages/dashboard/explore.vue'
-import planner from './pages/dashboard/planner.vue'
-import calendar from './pages/dashboard/calender.vue'
-import pantry from './pages/dashboard/pantry.vue'
-import track from './pages/dashboard/track.vue'
-import profile from './pages/dashboard/profile.vue'
+import dashboard from './pages/dashboard/home/dashboard.vue'
+import explore from './pages/dashboard/explore/explore.vue'
+import planner from './pages/dashboard/planner/planner.vue'
+import calendar from './pages/dashboard/calendar/calendar.vue'
+import track from './pages/dashboard/track/track.vue'
+import profile from './pages/dashboard/profile/profile.vue'
 import forgotPassword from './pages/authentication/forgot-password.vue'
 import resetPassword from './pages/authentication/reset-password.vue'
 
@@ -22,7 +21,6 @@ const routes = [
   { path: '/dashboard/explore', component: explore },
   { path: '/dashboard/planner', component: planner },
   { path: '/dashboard/calendar', component: calendar },
-  { path: '/dashboard/pantry', component: pantry },
   { path: '/dashboard/track', component: track },
   { path: '/dashboard/profile', component: profile },
 ]
