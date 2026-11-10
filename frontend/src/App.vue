@@ -27,7 +27,7 @@ const isAuthPage = computed(() =>
     <!-- Dashboard Pages -->
     <template v-else-if="isDashboard">
       <div class="flex min-h-screen">
-        <Sidebar />
+        <Sidebar class="sticky top-0 h-screen"/>
 
         <main class="min-w-0 flex-1">
           <RouterView />
