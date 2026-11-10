@@ -1,8 +1,17 @@
 <script setup>
+import HeaderDashboard from '../../../components/header-dashboard.vue'
 </script>
 
 <template>
-  <div class="h-full flex flex-col items-center justify-center text-center">
-    <h1>Track</h1>
+  <div class="p-7">
+    <HeaderDashboard
+      title="Track Your Progress"
+      description="Analyze your nutrient intake, view spending trends, and stay accountable."
+    />
+
+    <!-- Planner Content -->
+    <section class="mt-8">
+      <!-- Konten Planner -->
+    </section>
   </div>
 </template>

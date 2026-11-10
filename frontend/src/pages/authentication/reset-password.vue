@@ -98,7 +98,7 @@ const handleReset = async () => {
   <main class="flex min-h-dvh items-center justify-center">
     <section class="w-full max-w-md">
       <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
-        <img src="../assets/logo.png" alt="Leaflow" width="100px" text>
+        <img src="../../assets/logo.png" alt="Leaflow" width="100px" text>
       </RouterLink>
 
       <h1 class="mt-5 text-2xl font-semibold text-gray-900 text-center">
