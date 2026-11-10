@@ -8,7 +8,7 @@
         
         <!-- 1. Paling Kiri: Logo -->
         <div class="shrink-0 flex items-center">
-          <router-link to="/" class="text-2xl font-bold text-green-600 flex items-center gap-2">
+          <router-link to="/" class="text-2xl font-bold text-(--color-primary) flex items-center gap-2">
             <span>Leaflow</span>
           </router-link>
         </div>
@@ -36,13 +36,13 @@
           <div class="flex items-center gap-3">
             <router-link 
               to="/login" 
-              class="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition"
+              class="px-4 py-2 text-sm font-medium text(--color-primary) border text-(--color-primary) rounded-lg hover:bg-green-50 transition"
             >
               Login
             </router-link>
             <router-link 
               to="/register" 
-              class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
+              class="px-4 py-2 text-sm font-medium text-white bg-(--color-primary) rounded-lg hover:bg-green-700 transition"
             >
               Sign Up
             </router-link>

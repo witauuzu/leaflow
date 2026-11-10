@@ -171,7 +171,7 @@ const handleReset = async () => {
       </div>
 
       <p v-if="!checkingSession && !recoveryReady && !success" class="mt-5 text-sm text-center text-gray-500">
-        <RouterLink to="/forgot-password" class="font-medium text-[#388E3C] hover:underline">
+        <RouterLink to="/forgot-password" class="font-reguler text-[#388E3C] hover:underline">
           Request a new reset link
         </RouterLink>
       </p>
