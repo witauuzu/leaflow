@@ -10,6 +10,7 @@ import track from './pages/dashboard/track/track.vue'
 import profile from './pages/dashboard/profile/profile.vue'
 import forgotPassword from './pages/authentication/forgot-password.vue'
 import resetPassword from './pages/authentication/reset-password.vue'
+import plannerCreate from './pages/dashboard/planner/planner-create.vue'
 
 const routes = [
   { path: '/', component: landingPage },
@@ -23,6 +24,7 @@ const routes = [
   { path: '/dashboard/calendar', component: calendar },
   { path: '/dashboard/track', component: track },
   { path: '/dashboard/profile', component: profile },
+  { path: '/dashboard/planner/create', component: plannerCreate },
 ]
 
 const router = createRouter({
