@@ -24,7 +24,7 @@
             <router-link to="/features" class="font-medium">
                 Features
             </router-link>
-            <router-link to="/Explore" class="font-medium">
+            <router-link to="/explore" class="font-medium">
                 Explore
             </router-link>
             <router-link to="/AITrial" class="font-medium">

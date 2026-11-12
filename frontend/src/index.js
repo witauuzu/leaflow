@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import landingPage from './pages/landing-page.vue'
+import explore from './pages/explore-meal.vue'
+import AItrial from './pages/AI-trial.vue'
+import features from './pages/features.vue'
 import login from './pages/authentication/login.vue'
 import register from './pages/authentication/signup.vue'
 import dashboard from './pages/dashboard/home/dashboard.vue'
-import explore from './pages/dashboard/explore/explore.vue'
+import exploreMeal from './pages/dashboard/explore/explore.vue'
 import planner from './pages/dashboard/planner/planner.vue'
 import calendar from './pages/dashboard/calendar/calendar.vue'
 import track from './pages/dashboard/track/track.vue'
@@ -14,12 +17,15 @@ import plannerCreate from './pages/dashboard/planner/planner-create.vue'
 
 const routes = [
   { path: '/', component: landingPage },
+  { path: '/explore', component: explore },
+  { path: '/AITrial', component: AItrial },
+  { path: '/features', component: features },
   { path: '/login', component: login },
   { path: '/register', component: register },
   { path: '/dashboard', component: dashboard },
   { path: '/forgot-password', component: forgotPassword},
   { path: '/reset-password', component: resetPassword },
-  { path: '/dashboard/explore', component: explore },
+  { path: '/dashboard/explore', component: exploreMeal },
   { path: '/dashboard/planner', component: planner },
   { path: '/dashboard/calendar', component: calendar },
   { path: '/dashboard/track', component: track },
