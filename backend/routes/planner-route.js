@@ -710,4 +710,88 @@ router.get('/consumption', authenticateUser, async (req, res) => {
   }
 })
 
+
+// Get daily water intake
+router.get('/water-intake', authenticateUser, async (req, res) => {
+  try {
+    const { intakeDate } = req.query
+
+    if (!intakeDate) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Intake date is required.',
+      })
+    }
+
+    const { data, error } = await req.supabase
+      .from('water_intake_logs')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .eq('intake_date', intakeDate)
+      .maybeSingle()
+
+    if (error) throw error
+
+    return res.status(200).json({
+      status: 'success',
+      data,
+    })
+  } catch (error) {
+    console.error('Get water intake error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to load water intake.',
+    })
+  }
+})
+
+// Save daily water intake
+router.post('/water-intake', authenticateUser, async (req, res) => {
+  try {
+    const { intakeDate, amountMl } = req.body
+
+    if (
+      !intakeDate ||
+      !Number.isFinite(amountMl) ||
+      amountMl < 0
+    ) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Valid intake date and amount are required.',
+      })
+    }
+
+    const { data, error } = await req.supabase
+      .from('water_intake_logs')
+      .upsert(
+        {
+          user_id: req.user.id,
+          intake_date: intakeDate,
+          amount_ml: amountMl,
+        },
+        {
+          onConflict: 'user_id,intake_date',
+        }
+      )
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Water intake saved successfully.',
+      data,
+    })
+  } catch (error) {
+    console.error('Save water intake error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to save water intake.',
+    })
+  }
+})
+
 module.exports = router
