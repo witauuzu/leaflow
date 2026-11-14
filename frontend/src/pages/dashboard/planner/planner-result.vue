@@ -433,7 +433,7 @@ const tryAgainMeal = async () => {
         <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
           <div>
-            <h1 class="text-2xl font-semibold text-(--color-text)">
+            <h1 class="text-2xl font-semibold text-ink">
               Your {{ duration }}-day meal plan
             </h1>
 
@@ -448,7 +448,7 @@ const tryAgainMeal = async () => {
 
             <button
               @click="editAnswers"
-              class="flex items-center justify-center gap-2 rounded-lg border border-(--color-primary) px-4 py-2.5 text-sm font-medium text-(--color-primary) transition hover:bg-(--color-primary)/5"
+              class="flex items-center justify-center gap-2 rounded-lg border border-(--color-primary) px-4 py-2.5 text-sm font-medium text-(--color-primary) transition hover:bg-primary/5"
             >
               <Pencil :size="15" />
               Edit Answers
@@ -456,7 +456,7 @@ const tryAgainMeal = async () => {
 
             <button
               @click="openApproveModal"
-              class="flex items-center justify-center gap-2 rounded-lg bg-(--color-primary) px-4 py-2.5 text-sm font-medium text-white transition hover:bg-(--color-hover)"
+              class="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover"
             >
               <Check :size="16" />
               Approve Plan
@@ -470,14 +470,14 @@ const tryAgainMeal = async () => {
 
           <div class="rounded-xl border border-gray-100 bg-white p-4">
             <p class="text-xs text-gray-500">Duration</p>
-            <p class="mt-1 text-lg font-semibold text-(--color-text)">
+            <p class="mt-1 text-lg font-semibold text-ink">
               {{ duration }} Days
             </p>
           </div>
 
           <div class="rounded-xl border border-gray-100 bg-white p-4">
             <p class="text-xs text-gray-500">Total Days</p>
-            <p class="mt-1 text-lg font-semibold text-(--color-text)">
+            <p class="mt-1 text-lg font-semibold text-ink">
               {{ planDays.length }} Days
             </p>
           </div>
@@ -541,18 +541,18 @@ const tryAgainMeal = async () => {
 
           <!-- Timeline Line -->
           <div
-            class="absolute bottom-0 left-[7px] top-2 w-px bg-(--color-primary)/50"
+            class="absolute bottom-0 left-[7px] top-2 w-px bg-primary/50"
             :class="day.id === planDays.length ? 'hidden' : ''"
           ></div>
 
           <!-- Timeline Dot -->
           <div
-            class="absolute left-0 top-1.5 flex size-4 items-center justify-center rounded-full bg-(--color-primary) ring-4 ring-white"
+            class="absolute left-0 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary ring-4 ring-white"
           ></div>
 
           <!-- Date Heading -->
           <div class="mb-4 flex items-center justify-between gap-2">
-            <h2 class="text-base font-semibold text-(--color-text)">
+            <h2 class="text-base font-semibold text-ink">
               {{ day.formattedDate }}
             </h2>
 
@@ -617,7 +617,7 @@ const tryAgainMeal = async () => {
                 {{ meal.type }}
                 </p>
 
-                <h3 class="min-h-10 text-sm font-semibold text-(--color-text)">
+                <h3 class="min-h-10 text-sm font-semibold text-ink">
                 {{ meal.name }}
                 </h3>
 
@@ -649,7 +649,7 @@ const tryAgainMeal = async () => {
           <Check :size="23" class="text-(--color-primary)" />
         </div>
 
-        <h3 class="mt-3 font-semibold text-(--color-text)">
+        <h3 class="mt-3 font-semibold text-ink">
           You've reached the end of your meal plan!
         </h3>
 
@@ -685,7 +685,7 @@ const tryAgainMeal = async () => {
             </button>
           </div>
 
-          <h2 class="mt-4 text-xl font-semibold text-(--color-text)">
+          <h2 class="mt-4 text-xl font-semibold text-ink">
             Approve Your Meal Plan?
           </h2>
 
@@ -709,7 +709,7 @@ const tryAgainMeal = async () => {
 
             <button
               @click="approveMealPlan"
-              class="flex-1 rounded-lg bg-(--color-primary) px-4 py-3 text-sm font-medium text-white transition hover:bg-(--color-hover)"
+              class="flex-1 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-hover"
             >
               Got it
             </button>

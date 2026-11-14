@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-vue-next'
-import signupImage from '../../assets/signup.png'
+import signupImage from '../../assets/images/auth/signup.png'
 
 const router = useRouter()
 
@@ -18,31 +18,27 @@ const messageType = ref('error')
 const messageStyle = computed(() => {
   const styles = {
     success: {
-      container:
-        'border-[var(--color-success)]/30 bg-[var(--color-success)]/10',
-      icon: 'text-[var(--color-success)]',
-      text: 'text-[var(--color-success)]',
+      container: 'border-success/30 bg-success/10',
+      icon: 'text-success',
+      text: 'text-success',
       iconComponent: CheckCircle2,
     },
     info: {
-      container:
-        'border-[var(--color-info)]/30 bg-[var(--color-info)]/10',
-      icon: 'text-[var(--color-info)]',
-      text: 'text-[var(--color-info)]',
+      container: 'border-info/30 bg-info/10',
+      icon: 'text-info',
+      text: 'text-info',
       iconComponent: Info,
     },
     warning: {
-      container:
-        'border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10',
-      icon: 'text-[var(--color-warning)]',
-      text: 'text-[var(--color-warning)]',
+      container: 'border-warning/30 bg-warning/10',
+      icon: 'text-warning',
+      text: 'text-warning',
       iconComponent: AlertTriangle,
     },
     error: {
-      container:
-        'border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10',
-      icon: 'text-[var(--color-danger)]',
-      text: 'text-[var(--color-danger)]',
+      container: 'border-danger/30 bg-danger/10',
+      icon: 'text-danger',
+      text: 'text-danger',
       iconComponent: AlertCircle,
     },
   }
@@ -130,10 +126,10 @@ const handleRegister = async () => {
       <div>
         <RouterLink
           to="/"
-          class="inline-flex items-center gap-2 text-sm text-[#263D2A] transition hover:text-[#388E3C]"
+          class="inline-flex items-center gap-2 text-sm text-ink-soft transition hover:text-primary-deep"
         >
           <span
-            class="flex h-7 w-7 items-center justify-center rounded-full border border-[#868889] hover:border-(--color-hover)"
+            class="flex h-7 w-7 items-center justify-center rounded-full border border-line-strong hover:border-primary-hover"
           >
             <ArrowLeft :size="15" :stroke-width="1" />
           </span>
@@ -144,7 +140,7 @@ const handleRegister = async () => {
       <!-- FORM CONTENT -->
       <div class="my-auto mx-auto w-full max-w-md">
 
-        <h1 class="mb-6 text-center text-2xl font-semibold leading-tight text-(--color-text)">
+        <h1 class="mb-6 text-center text-2xl font-semibold leading-tight text-ink">
           Let's Start Your Journey
         </h1>
 
@@ -193,7 +189,7 @@ const handleRegister = async () => {
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute inset-y-0 right-3 flex items-center text-[#a7a7a7] transition"
+                class="absolute inset-y-0 right-3 flex items-center text-muted transition"
                 :aria-label="showPassword ? 'Hide password' : 'Show password'"
               >
                 <Eye v-if="!showPassword" :size="20" :stroke-width="1.7" />
@@ -207,7 +203,7 @@ const handleRegister = async () => {
                 v-for="rule in passwordRules"
                 :key="rule.label"
                 class="flex items-center gap-2 text-xs font-extralight"
-                :class="rule.valid ? 'text-[#388E3C]' : 'text-[#a7a7a7]'"
+                :class="rule.valid ? 'text-primary-deep' : 'text-muted'"
               >
                 <span>{{ rule.valid ? '✓' : '○' }}</span>
                 {{ rule.label }}
@@ -242,7 +238,7 @@ const handleRegister = async () => {
           <button
             type="submit"
             :disabled="loading"
-            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
+            class="mt-3 w-full rounded-full bg-primary-deep py-3 text-sm font-normal text-white transition hover:bg-ink disabled:opacity-60"
           >
             {{ loading ? 'Creating account...' : 'Create Account' }}
           </button>
@@ -250,11 +246,11 @@ const handleRegister = async () => {
         </form>
 
         <!-- LOGIN LINK -->
-        <p class="mt-3 text-center text-xs font-light text-[#a7a7a7]">
+        <p class="mt-3 text-center text-xs font-light text-muted">
           Already have an account?
           <RouterLink
             to="/login"
-            class="font-medium text-(--color-primary) hover:underline"
+            class="font-medium text-primary hover:underline"
           >
             Log in
           </RouterLink>
@@ -265,7 +261,7 @@ const handleRegister = async () => {
 
     <!-- IMAGE SECTION -->
     <section
-      class="relative hidden min-h-screen items-end justify-center overflow-hidden bg-(--color-primary) md:flex md:w-[50%]"
+      class="relative hidden min-h-screen items-end justify-center overflow-hidden bg-primary md:flex md:w-[50%]"
     >
       <img
         :src="signupImage"

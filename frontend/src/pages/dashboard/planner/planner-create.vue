@@ -448,7 +448,7 @@ const leavePlanner = () => {
         type="button"
         @click="openExitConfirmation"
         aria-label="Close questionnaire"
-        class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-500"
+        class="flex h-9 w-9 items-center justify-center rounded-full border border-line text-muted transition hover:border-danger/30 hover:bg-danger/10 hover:text-danger"
         >
         <X :size="17" :stroke-width="1.5" />
         </button>
@@ -459,19 +459,18 @@ const leavePlanner = () => {
       <div class="mx-auto w-full max-w-4xl">
 
         <div class="mb-3 flex items-center justify-between gap-3">
-          <span class="text-sm font-regular text-(--color-hover)">
+          <span class="text-sm font-normal text-primary-hover">
             Step {{ currentStep + 1 }} of {{ questions.length }}
           </span>
 
-          <span class="text-sm font-regular text-(--color-hover)">
+          <span class="text-sm font-normal text-primary-hover">
             {{ progress }}% Complete
           </span>
         </div>
 
-        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+        <div class="h-2 w-full overflow-hidden rounded-full bg-accent">
           <div
-            class="h-full rounded-full transition-all duration-300"
-            style="background: linear-gradient(270deg, #90D68D 0%, #7BC988 25%, #66BB83 50%)"
+            class="brand-gradient-horizontal h-full rounded-full transition-all duration-300"
             :style="{ width: `${progress}%` }"
           ></div>
         </div>
@@ -486,11 +485,11 @@ const leavePlanner = () => {
         <!-- Question -->
         <div class="min-h-[390px]">
           <div class="mb-6">
-            <h2 class="text-lg font-semibold leading-snug text-(--color-text) sm:text-2xl">
+            <h2 class="text-lg font-semibold leading-snug text-ink sm:text-2xl">
               {{ activeQuestion.title }}
             </h2>
 
-            <p class="mt-2 text-sm leading-relaxed text-gray-500">
+            <p class="mt-2 text-sm leading-relaxed text-muted">
               {{ activeQuestion.description }}
             </p>
           </div>
@@ -512,14 +511,14 @@ const leavePlanner = () => {
               )"
               class="flex w-full items-center justify-between gap-3 rounded-lg border px-4 py-3.5 text-left transition"
               :class="isSelected(activeQuestion.key, option)
-                ? 'border-(--color-primary) bg-[#F2FAF2]'
-                : 'border-gray-200 bg-white hover:border-(--color-primary) hover:bg-[#F2FAF2]'"
+                ? 'border-primary bg-accent/40'
+                : 'border-line bg-white hover:border-primary hover:bg-accent/40'"
             >
               <span
-                class="text-sm font-reguler"
+                class="text-sm font-normal"
                 :class="isSelected(activeQuestion.key, option)
-                  ? 'text-(--color-text)'
-                  : 'text-gray-500'"
+                  ? 'text-ink'
+                  : 'text-muted'"
               >
                 {{ option }}
               </span>
@@ -528,8 +527,8 @@ const leavePlanner = () => {
                 v-if="activeQuestion.type === 'single'"
                 class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border"
                 :class="isSelected(activeQuestion.key, option)
-                  ? 'border-[#66BB83] bg-(--color-primary)'
-                  : 'border-gray-300'"
+                  ? 'border-primary bg-primary'
+                  : 'border-line-strong'"
               >
                 <span
                   v-if="isSelected(activeQuestion.key, option)"
@@ -541,8 +540,8 @@ const leavePlanner = () => {
                 v-else
                 class="flex h-5 w-5 shrink-0 items-center justify-center rounded border"
                 :class="isSelected(activeQuestion.key, option)
-                  ? 'border-[#66BB83] bg-[#66BB83] text-white'
-                  : 'border-gray-300 bg-white'"
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-line-strong bg-white'"
               >
                 <Check v-if="isSelected(activeQuestion.key, option)" :size="14" />
               </span>
@@ -556,7 +555,7 @@ const leavePlanner = () => {
               "
               class="pt-2"
             >
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Please specify
               </label>
 
@@ -564,7 +563,7 @@ const leavePlanner = () => {
                 v-model="answers[otherKey]"
                 type="text"
                 placeholder="Type your answer here..."
-                class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               />
             </div>
           </div>
@@ -575,10 +574,10 @@ const leavePlanner = () => {
               v-model="answers.dislikedFoods"
               rows="5"
               :placeholder="activeQuestion.placeholder"
-              class="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#66BB83] focus:ring-2 focus:ring-(--color-primary)/10"
+              class="w-full resize-none rounded-lg border border-line px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
             ></textarea>
 
-            <p class="mt-2 text-xs text-gray-400">
+            <p class="mt-2 text-xs text-muted">
               This question is optional. You can leave it blank if you have no preferences.
             </p>
           </div>
@@ -586,12 +585,12 @@ const leavePlanner = () => {
           <!-- Budget -->
           <div v-else-if="activeQuestion.type === 'budget'" class="space-y-5">
             <div>
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Budget Amount (IDR)
               </label>
 
-              <div class="flex items-center rounded-lg border border-gray-200 px-4 focus-within:border-[#66BB83] focus-within:ring-2 focus-within:ring-(--color-primary)/10">
-                <span class="text-sm font-reguler text-gray-500">Rp</span>
+              <div class="flex items-center rounded-lg border border-line px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+                <span class="text-sm font-normal text-muted">Rp</span>
 
                 <input
                   v-model="formattedBudget"
@@ -603,7 +602,7 @@ const leavePlanner = () => {
             </div>
 
             <div>
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Budget Period
               </label>
 
@@ -613,10 +612,10 @@ const leavePlanner = () => {
                   :key="period"
                   type="button"
                   @click="answers.budgetPeriod = period"
-                  class="rounded-lg border px-3 py-3 text-sm font-reguler transition"
+                  class="rounded-lg border px-3 py-3 text-sm font-normal transition"
                   :class="answers.budgetPeriod === period
-                    ? 'border-[#66BB83] bg-[#F2FAF2] text-(--color-text)'
-                    : 'border-gray-200 text-gray-500 hover:border-[#90D68D]'"
+                    ? 'border-primary bg-accent/40 text-ink'
+                    : 'border-line text-muted hover:border-secondary'"
                 >
                   {{ period }}
                 </button>
@@ -626,7 +625,7 @@ const leavePlanner = () => {
           <!-- Duration -->
           <div v-else-if="activeQuestion.type === 'duration'" class="space-y-7">
             <div>
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Duration
               </label>
               <div class="flex items-center gap-3">
@@ -637,50 +636,50 @@ const leavePlanner = () => {
                   max="30"
                   step="1"
                   placeholder="e.g. 7"
-                  class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                  class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
                 />
 
-                <span class="text-sm font-medium text-gray-500">
+                <span class="text-sm font-medium text-muted">
                   Days
                 </span>
               </div>
-              <p class="mt-2 text-xs text-gray-400">
+              <p class="mt-2 text-xs text-muted">
                 You can create a meal plan for 1 to 30 days.
               </p>
             </div>
             <!-- Start Date -->
             <div>
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Start Date
               </label>
               <input
                 v-model="answers.startDate"
                 type="date"
                 :min="minStartDate"
-                class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm  outline-none transition focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                class="w-full rounded-lg border border-line px-4 py-3 text-sm  outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               />
-              <p class="mt-2 text-xs text-gray-400">
+              <p class="mt-2 text-xs text-muted">
                 Choose when you want your meal plan to begin.
               </p>
             </div>
             <!-- End Date Preview -->
             <div
               v-if="endDate"
-              class="rounded-xl border border-(--color-primary)/20 bg-(--color-primary)/5 p-4"
+              class="rounded-xl border border-primary/20 bg-primary/5 p-4"
             >
               <div class="flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-sm font-semibold text-(--color-text)">
+                  <p class="text-sm font-semibold text-ink">
                     {{ formatDate(answers.startDate) }}
                   </p>
-                  <p class="mt-1 text-xs text-gray-500">Start Date</p>
+                  <p class="mt-1 text-xs text-muted">Start Date</p>
                 </div>
-                <ChevronRight :size="18" class="shrink-0 text-(--color-primary)" />
+                <ChevronRight :size="18" class="shrink-0 text-primary" />
                 <div class="text-right">
-                  <p class="text-sm font-semibold text-(--color-text)">
+                  <p class="text-sm font-semibold text-ink">
                     {{ formatDate(endDate) }}
                   </p>
-                  <p class="mt-1 text-xs text-gray-500">End Date</p>
+                  <p class="mt-1 text-xs text-muted">End Date</p>
                 </div>
               </div>
             </div>
@@ -691,13 +690,13 @@ const leavePlanner = () => {
     </main>
 
     <!-- Sticky Bottom Navigation -->
-    <footer class="z-10 shrink-0 border-t border-gray-100 bg-white px-5 py-4 sm:px-6">
+    <footer class="z-10 shrink-0 border-t border-line bg-white px-5 py-4 sm:px-6">
       <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
 
         <button
           type="button"
           @click="previousStep"
-          class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-xs font-reguler text-gray-600 transition hover:bg-gray-50"
+          class="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-xs font-normal text-muted transition hover:bg-accent/30"
         >
           <ChevronLeft :stroke-width="1" :size="17" />
           Previous
@@ -707,7 +706,7 @@ const leavePlanner = () => {
           type="button"
           @click="nextStep"
           :disabled="!isAnswered"
-          class="inline-flex items-center gap-2 rounded-lg bg-(--color-primary) px-5 py-2.5 text-sm font-medium text-white transition hover:bg-(--color-hover) disabled:cursor-not-allowed disabled:opacity-40"
+          class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ currentStep === questions.length - 1 ? 'Finish' : 'Next' }}
           <ChevronRight v-if="currentStep !== questions.length - 1" :size="17" />
@@ -728,11 +727,11 @@ const leavePlanner = () => {
         @click.stop
         >
         <!-- Message -->
-        <h3 class="text-lg font-semibold text-(--color-text) text-center">
+        <h3 class="text-lg font-semibold text-ink text-center">
             Leave questionnaire?
         </h3>
 
-        <p class="mt-2 text-center text-sm leading-relaxed text-gray-500">
+        <p class="mt-2 text-center text-sm leading-relaxed text-muted">
             Are you sure you want to leave? Your progress and answers will not be saved.
         </p>
 
@@ -741,7 +740,7 @@ const leavePlanner = () => {
             <button
             type="button"
             @click.stop="closeExitConfirmation"
-            class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+            class="rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-accent/30"
             >
             Stay
             </button>
@@ -749,7 +748,7 @@ const leavePlanner = () => {
             <button
             type="button"
             @click.stop="leavePlanner"
-            class="rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
+            class="rounded-lg bg-danger px-4 py-2.5 text-sm font-medium text-white transition hover:bg-danger/90"
             >
             Leave
             </button>

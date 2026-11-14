@@ -5,6 +5,8 @@ import { useRoute } from 'vue-router'
 
 import Navbar from './components/navbar.vue'
 import Sidebar from './components/sidebar.vue'
+import SiteFooter from './components/site-footer.vue'
+import ChatWidget from './components/chat-widget.vue'
 
 const route = useRoute()
 
@@ -35,10 +37,13 @@ const isAuthPage = computed(() =>
       </div>
     </template>
 
-    <!-- Landing Page -->
+    <!-- Public Pages -->
     <template v-else>
       <Navbar />
       <RouterView />
+      <SiteFooter />
     </template>
+
+    <ChatWidget />
   </div>
 </template>

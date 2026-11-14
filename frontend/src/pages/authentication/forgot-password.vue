@@ -43,14 +43,14 @@ const handleSubmit = async () => {
 <template>
   <main class="flex min-h-dvh items-center justify-center">
     <section class="w-full max-w-md">
-      <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
-        <img src="../../assets/logo.png" alt="Leaflow" width="100px" text>
+      <RouterLink to="/" class=" flex justify-center text-xl font-bold text-primary-deep w-full">
+        <img src="../../assets/images/brand/logo.png" alt="Leaflow" width="100px" />
       </RouterLink>
-      <h1 class="mt-5 text-2xl font-semibold text-gray-900 text-center">
+      <h1 class="mt-5 text-2xl font-semibold text-ink text-center">
         Forgot your password?
       </h1>
 
-      <p class="mt-3 text-sm leading-6 text-gray-500 text-center">
+      <p class="mt-3 text-sm leading-6 text-muted text-center">
         No worries! Enter the email address associated with your account
         and we'll send you a password reset link.
       </p>
@@ -72,7 +72,7 @@ const handleSubmit = async () => {
           v-if="message"
           role="status"
           class="text-sm leading-6"
-          :class="success ? 'text-[#388E3C]' : 'text-red-600'"
+            :class="success ? 'text-primary-deep' : 'text-danger'"
         >
           {{ message }}
         </p>
@@ -80,7 +80,7 @@ const handleSubmit = async () => {
           <button
             type="submit"
             :disabled="loading"
-            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
+            class="mt-3 w-full rounded-full bg-primary-deep py-3 text-sm font-normal text-white transition hover:bg-ink disabled:opacity-60"
           >
             {{ loading ? 'Send link...' : 'Send Reset Link' }}
           </button>
@@ -88,7 +88,7 @@ const handleSubmit = async () => {
 
       <RouterLink
         to="/login"
-        class="mt-5 block text-center text-sm font-reguler text-(--color-primary) hover:underline"
+        class="mt-5 block text-center text-sm font-normal text-primary hover:underline"
       >
         Back to Login
       </RouterLink>

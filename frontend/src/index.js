@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import landingPage from './pages/landing-page.vue'
 import explore from './pages/explore-meal.vue'
-import AItrial from './pages/AI-trial.vue'
+import trial from './pages/AI-trial.vue'
 import features from './pages/features.vue'
 import login from './pages/authentication/login.vue'
 import register from './pages/authentication/signup.vue'
@@ -19,7 +19,7 @@ import PlannerResult from './pages/dashboard/planner/planner-result.vue'
 const routes = [
   { path: '/', component: landingPage },
   { path: '/explore', component: explore },
-  { path: '/AITrial', component: AItrial },
+  { path: '/trial', component: trial },
   { path: '/features', component: features },
   { path: '/login', component: login },
   { path: '/register', component: register },
@@ -38,6 +38,10 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.afterEach(() => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 })
 
 export default router

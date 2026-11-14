@@ -3,8 +3,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import HeaderDashboard from '../../../components/header-dashboard.vue'
 import MealCard from '../../../components/meal-card.vue'
-import plannerIllustration from '../../../assets/ilustration.png'
-import { Coffee, Utensils, Moon, Cookie, Sparkles, ChevronLeft, ChevronRight, ChevronDown, GlassWater, ShoppingBasket, ClipboardList, X} from 'lucide-vue-next'
+import plannerIllustration from '../../../assets/images/illustrations/planner-shopping.png'
+import { Coffee, Utensils, Moon, Cookie, ChefHat, ChevronLeft, ChevronRight, ChevronDown, GlassWater, ShoppingBasket, ClipboardList, X } from 'lucide-vue-next'
 
 const router = useRouter()
 const isLoadingMeals = ref(false)
@@ -636,7 +636,7 @@ onMounted(() => {
 
         <!-- Create My Plan Banner -->
         <section
-          class="relative flex h-[180px] items-center justify-between overflow-hidden rounded-[10px] bg-[linear-gradient(270deg,#90D68D_0%,#7BC988_25%,#66BB83_50%)] px-6"
+          class="brand-gradient-horizontal relative flex h-[180px] items-center justify-between overflow-hidden rounded-[10px] px-6"
         >
           <!-- Banner Text -->
           <div class="relative z-10 max-w-[60%]">
@@ -650,9 +650,9 @@ onMounted(() => {
 
             <button
               @click="goToCreatePlan"
-              class="mt-3 flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-medium text-(--color-primary) transition hover:bg-gray-50"
+              class="mt-3 flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-medium text-primary transition hover:bg-accent/30"
             >
-              <Sparkles :size="14" />
+              <ChefHat :size="14" />
               Create My Plan
             </button>
           </div>
@@ -675,7 +675,7 @@ onMounted(() => {
 
             <!-- Title and Date -->
             <div class="flex items-baseline gap-2">
-              <span class="text-lg font-semibold text-(--color-text)]">
+              <span class="text-lg font-semibold text-ink">
                 {{ formattedDate }}
               </span>
             </div>
@@ -684,7 +684,7 @@ onMounted(() => {
             <div class="flex items-center gap-1">
               <button
                 @click="changeDate(-1)"
-                class="rounded-md p-1 text-(--color-text) transition hover:bg-gray-100"
+                class="rounded-md p-1 text-ink transition hover:bg-accent"
                 aria-label="Previous day"
               >
                 <ChevronLeft :size="20" />
@@ -692,7 +692,7 @@ onMounted(() => {
 
               <button
                 @click="changeDate(1)"
-                class="rounded-md p-1 text-(--color-text) transition hover:bg-gray-100"
+                class="rounded-md p-1 text-ink transition hover:bg-accent"
                 aria-label="Next day"
               >
                 <ChevronRight :size="20" />
@@ -712,16 +712,16 @@ onMounted(() => {
 
         <!-- Meal Details -->
         <section
-          class="flex min-h-[250px] flex-col rounded-[10px] border border-gray-200 bg-white p-5"
+          class="flex min-h-[250px] flex-col rounded-[10px] border border-line bg-white p-5"
         >
-          <h2 class="text-sm font-semibold text-(--color-text)">
+          <h2 class="text-sm font-semibold text-ink">
             Meal Details
           </h2>
 
           <div v-if="mealDetails.length" class="mt-4 overflow-x-auto">
             <table class="w-full min-w-[650px] text-left">
               <thead>
-                <tr class="border-b border-gray-100 text-xs text-gray-400">
+                <tr class="border-b border-line text-xs text-muted">
                   <th class="w-10 pb-3 font-medium">Done</th>
                   <th class="pb-3 font-medium">Meal</th>
                   <th class="pb-3 font-medium">Dish Name</th>
@@ -735,34 +735,34 @@ onMounted(() => {
                 <tr
                   v-for="meal in mealDetails"
                   :key="meal.id"
-                  class="border-b border-gray-50 last:border-0"
+                  class="border-b border-line last:border-0"
                 >
                   <td class="py-3">
                     <input
                       type="checkbox"
                       :checked="meal.isConsumed"
                       @change="toggleMealConsumed(meal.mealIndex)"
-                      class="h-4 w-4 cursor-pointer accent-[#66BB6A]"
+                      class="h-4 w-4 cursor-pointer accent-primary"
                     />
                   </td>
 
-                  <td class="py-3 text-xs text-gray-500">
+                  <td class="py-3 text-xs text-muted">
                     {{ meal.type }}
                   </td>
 
-                  <td class="py-3 pr-3 text-xs font-medium text-(--color-text)">
+                  <td class="py-3 pr-3 text-xs font-medium text-ink">
                     {{ meal.name }}
                   </td>
 
-                  <td class="py-3 text-xs text-gray-500">
+                  <td class="py-3 text-xs text-muted">
                     {{ meal.plannedTime }}
                   </td>
 
-                  <td class="py-3 text-xs text-gray-500">
+                  <td class="py-3 text-xs text-muted">
                     {{ meal.calories }} kcal
                   </td>
 
-                  <td class="py-3 text-xs text-gray-500">
+                  <td class="py-3 text-xs text-muted">
                     {{ meal.protein }} g
                   </td>
                 </tr>
@@ -775,20 +775,20 @@ onMounted(() => {
             class="flex flex-1 flex-col items-center justify-center py-8 text-center"
           >
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F8F1]"
+              class="flex h-14 w-14 items-center justify-center rounded-full bg-accent/40"
             >
               <ClipboardList
                 :size="26"
                 :stroke-width="1.5"
-                class="text-(--color-primary)"
+                class="text-primary"
               />
             </div>
 
-            <h3 class="mt-3 text-sm font-normal text-gray-600">
+            <h3 class="mt-3 text-sm font-normal text-muted">
               No meal details yet
             </h3>
 
-            <p class="mt-1 max-w-[300px] text-xs leading-relaxed text-gray-400">
+            <p class="mt-1 max-w-[300px] text-xs leading-relaxed text-muted">
               Your meal details and nutritional information will appear here once you
               create your meal plan.
             </p>
@@ -801,21 +801,21 @@ onMounted(() => {
       <div class="flex min-w-0 flex-col gap-[15px]">
         <!-- Drink -->
         <section
-          class="flex flex-col rounded-[10px] border border-gray-200 bg-white p-4"
+          class="flex min-h-[180px] flex-col rounded-[10px] border border-line bg-white p-4"
         >
-          <h2 class="text-sm font-semibold text-(--color-text)">
+          <h2 class="text-sm font-semibold text-ink">
             Water Intake
           </h2>
 
           <!-- Water Progress -->
           <div class="mt-4 flex items-center justify-between">
             <div>
-              <p class="text-2xl font-semibold text-(--color-text)">
+              <p class="text-2xl font-semibold text-ink">
                 {{ waterIntake }}
-                <span class="text-xs font-normal text-gray-400">ml</span>
+                <span class="text-xs font-normal text-muted">ml</span>
               </p>
 
-              <p class="mt-1 text-xs text-gray-400">
+              <p class="mt-1 text-xs text-muted">
                 of {{ waterGoal }} ml daily goal
               </p>
             </div>
@@ -823,39 +823,39 @@ onMounted(() => {
             <GlassWater
               :size="30"
               :stroke-width="1.5"
-              class="text-(--color-primary)"
+              class="text-primary"
             />
           </div>
 
           <!-- Progress Bar -->
-          <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+          <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-line/60">
             <div
-              class="h-full rounded-full bg-(--color-primary) transition-all duration-300"
+              class="h-full rounded-full bg-primary transition-all duration-300"
               :style="{ width: `${waterProgress}%` }"
             ></div>
           </div>
 
           <!-- Water Controls -->
           <div class="mt-4 flex items-center justify-between">
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-muted">
               {{ Math.round(waterProgress) }}% completed
             </p>
 
             <div class="flex items-center gap-3">
               <button
                 @click="removeWater"
-                class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50"
+                class="flex h-8 w-8 items-center justify-center rounded-full border border-line text-muted hover:bg-accent/30"
               >
                 −
               </button>
 
-              <span class="text-xs font-medium text-gray-600">
+              <span class="text-xs font-medium text-muted">
                 +250 ml
               </span>
 
               <button
                 @click="addWater"
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-(--color-primary) text-white hover:opacity-90"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white hover:bg-primary-hover"
               >
                 +
               </button>
@@ -864,22 +864,21 @@ onMounted(() => {
         </section>
 
         <!-- Shopping List -->
-        <section class="flex min-h-[250px] flex-1 flex-col rounded-[10px] border border-gray-200 bg-white p-4">
-
+        <section class="flex min-h-[250px] flex-1 flex-col rounded-[10px] border border-line bg-white p-4">
           <!-- Header -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <ShoppingBasket
                 :size="18"
                 :stroke-width="1.8"
-                class="text-(--color-primary)"
+                class="text-primary"
               />
-              <h2 class="text-sm font-semibold text-(--color-text)">
+              <h2 class="text-sm font-semibold text-ink">
                 Shopping List
               </h2>
             </div>
 
-            <span class="text-xs text-gray-400">
+            <span class="text-xs text-muted">
               {{ shoppingGroups.length }} items
             </span>
           </div>
@@ -892,22 +891,22 @@ onMounted(() => {
             <div
               v-for="group in shoppingGroups"
               :key="group.id"
-              class="overflow-hidden rounded-lg border border-gray-100"
+              class="overflow-hidden rounded-lg border border-line"
             >
 
               <!-- Group Header -->
               <button
                 type="button"
                 @click="toggleShoppingGroup(group.id)"
-                class="flex w-full items-center justify-between bg-[#F8FBF8] px-3 py-3 text-left"
+                class="flex w-full items-center justify-between bg-accent/20 px-3 py-3 text-left"
               >
-                <span class="text-xs font-semibold text-(--color-text)">
+                <span class="text-xs font-semibold text-ink">
                   {{ group.name }}
                 </span>
 
                 <ChevronDown
                   :size="16"
-                  class="text-gray-500 transition-transform"
+                  class="text-muted transition-transform"
                   :class="{ 'rotate-180': isShoppingGroupExpanded(group.id) }"
                 />
               </button>
@@ -927,13 +926,13 @@ onMounted(() => {
                       type="checkbox"
                       :checked="!!checkedShoppingItems[ingredient.id]"
                       @change="toggleShoppingItem(ingredient.id)"
-                      class="h-4 w-4 shrink-0 cursor-pointer accent-[#66BB6A]"
+                      class="h-4 w-4 shrink-0 cursor-pointer accent-primary"
                     />
 
                     <span
-                      class="text-xs text-gray-600"
+                      class="text-xs text-muted"
                       :class="{
-                        'text-gray-400 line-through':
+                        'text-muted line-through':
                           checkedShoppingItems[ingredient.id]
                       }"
                     >
@@ -941,7 +940,7 @@ onMounted(() => {
                     </span>
                   </div>
 
-                  <span class="shrink-0 text-xs text-gray-400">
+                  <span class="shrink-0 text-xs text-muted">
                     {{ ingredient.quantity }}
                   </span>
                 </label>
@@ -955,19 +954,19 @@ onMounted(() => {
             v-else
             class="flex flex-1 flex-col items-center justify-center py-8 text-center"
           >
-            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F8F1]">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-accent/40">
               <ShoppingBasket
                 :size="26"
                 :stroke-width="1.5"
-                class="text-(--color-primary)"
+                class="text-primary"
               />
             </div>
 
-            <h3 class="mt-3 text-sm font-medium text-(--color-text)">
+            <h3 class="mt-3 text-sm font-normal text-muted">
               Your list is empty
             </h3>
 
-            <p class="mt-1 text-xs text-gray-400">
+            <p class="mt-1 max-w-[200px] text-xs leading-relaxed text-muted">
               Ingredients from your meal plan will appear here.
             </p>
           </div>
@@ -985,17 +984,17 @@ onMounted(() => {
             <!-- Modal Header -->
             <div class="mb-6 flex items-center justify-between">
               <div>
-                <h2 class="text-lg font-semibold text-(--color-text)">
+                <h2 class="text-lg font-semibold text-ink">
                   Log Different Meal
                 </h2>
-                <p class="mt-1 text-sm text-gray-400">
+                <p class="mt-1 text-sm text-muted">
                   Enter the food you actually ate.
                 </p>
               </div>
 
               <button
                 type="button"
-                class="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
+                class="rounded-full p-2 text-muted transition hover:bg-line/60"
                 @click="closeMealEdit"
               >
                 <X :size="20" />
@@ -1004,41 +1003,41 @@ onMounted(() => {
 
             <!-- Food Name -->
             <div class="mb-4">
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Food Name
               </label>
               <input
                 v-model="editedMealName"
                 type="text"
                 placeholder="Example: Nasi Goreng"
-                class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-(--color-primary)"
+                class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-primary"
               />
             </div>
 
             <!-- Portion -->
             <div class="mb-4">
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Portion
               </label>
               <input
                 v-model="editedMealPortion"
                 type="text"
                 placeholder="Example: 1 plate, 200g"
-                class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-(--color-primary)"
+                class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-primary"
               />
             </div>
 
             <!-- Additional Details -->
             <div class="mb-6">
-              <label class="mb-2 block text-sm font-medium text-(--color-text)">
+              <label class="mb-2 block text-sm font-medium text-ink">
                 Additional Details
-                <span class="font-normal text-gray-400">(Optional)</span>
+                <span class="font-normal text-muted">(Optional)</span>
               </label>
               <textarea
                 v-model="editedMealDetails"
                 rows="3"
                 placeholder="Example: With egg, chicken, and extra vegetables"
-                class="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-(--color-primary)"
+                class="w-full resize-none rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-primary"
               ></textarea>
             </div>
 
@@ -1046,7 +1045,7 @@ onMounted(() => {
             <div class="flex justify-end gap-3">
               <button
                 type="button"
-                class="rounded-lg border border-gray-200 px-5 py-2.5 text-sm text-gray-500 transition hover:bg-gray-50"
+                class="rounded-lg border border-line px-5 py-2.5 text-sm text-muted transition hover:bg-accent/30"
                 @click="closeMealEdit"
               >
                 Cancel
@@ -1055,7 +1054,7 @@ onMounted(() => {
               <button
                 type="button"
                 @click="saveMealEdit"
-                class="rounded-lg bg-(--color-primary) px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+                class="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover"
               >
                 Save Meal
               </button>

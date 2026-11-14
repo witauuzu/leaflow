@@ -97,19 +97,19 @@ const handleReset = async () => {
 <template>
   <main class="flex min-h-dvh items-center justify-center">
     <section class="w-full max-w-md">
-      <RouterLink to="/" class=" flex justify-center text-xl font-bold text-[#388E3C] w-full">
-        <img src="../../assets/logo.png" alt="Leaflow" width="100px" text>
+      <RouterLink to="/" class=" flex justify-center text-xl font-bold text-primary-deep w-full">
+        <img src="../../assets/images/brand/logo.png" alt="Leaflow" width="100px" />
       </RouterLink>
 
-      <h1 class="mt-5 text-2xl font-semibold text-gray-900 text-center">
+      <h1 class="mt-5 text-2xl font-semibold text-ink text-center">
         Create a new password
       </h1>
 
-      <p class="mt-3 text-sm leading-6 text-gray-500 text-center">
+      <p class="mt-3 text-sm leading-6 text-muted text-center">
         Choose a strong password to secure your account
       </p>
 
-      <p v-if="checkingSession" class="mt-6 text-sm text-gray-500 text-center" role="status">
+      <p v-if="checkingSession" class="mt-6 text-sm text-muted text-center" role="status">
         Verifying your reset link...
       </p>
 
@@ -128,7 +128,7 @@ const handleReset = async () => {
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-3 flex items-center text-[#a7a7a7] transition"
+              class="absolute inset-y-0 right-3 flex items-center text-muted transition"
               :aria-label="showPassword ? 'Hide password' : 'Show password'"
             >
               <Eye v-if="!showPassword" :size="20" :stroke-width="1.7" />
@@ -141,7 +141,7 @@ const handleReset = async () => {
               v-for="rule in passwordRules"
               :key="rule.label"
               class="flex items-center gap-2 text-xs font-extralight"
-              :class="rule.valid ? 'text-[#388E3C]' : 'text-[#a7a7a7]'"
+              :class="rule.valid ? 'text-primary-deep' : 'text-muted'"
             >
               <span>{{ rule.valid ? '✓' : '○' }}</span>
               {{ rule.label }}
@@ -151,7 +151,7 @@ const handleReset = async () => {
           <button
             type="submit"
             :disabled="loading"
-            class="mt-3 w-full rounded-lg bg-(--color-primary) py-3 text-sm font-regular text-white transition hover:bg-[#4CAF50] disabled:opacity-60"
+            class="mt-3 w-full rounded-full bg-primary-deep py-3 text-sm font-normal text-white transition hover:bg-ink disabled:opacity-60"
           >
             {{ loading ? 'Update password...' : 'Update Password' }}
           </button>
@@ -159,19 +159,19 @@ const handleReset = async () => {
       </template>
 
       <div v-if="success" class="mt-6 text-center">
-        <p role="status" class="text-sm leading-6 text-[#388E3C]">
+        <p role="status" class="text-sm leading-6 text-primary-deep">
           {{ message }}
         </p>
         <RouterLink
           to="/login"
-          class="mt-5 block rounded-lg bg-(--color-primary) py-3 text-center text-sm font-reguler text-white hover:bg-[#4CAF50]"
+          class="mt-5 block rounded-full bg-primary-deep py-3 text-center text-sm font-normal text-white hover:bg-ink"
         >
           Back to Login
         </RouterLink>
       </div>
 
-      <p v-if="!checkingSession && !recoveryReady && !success" class="mt-5 text-sm text-center text-gray-500">
-        <RouterLink to="/forgot-password" class="font-reguler text-[#388E3C] hover:underline">
+      <p v-if="!checkingSession && !recoveryReady && !success" class="mt-5 text-sm text-center text-muted">
+        <RouterLink to="/forgot-password" class="font-normal text-primary-deep hover:underline">
           Request a new reset link
         </RouterLink>
       </p>
