@@ -432,10 +432,8 @@ const toggleShoppingItem = (itemId) => {
 const waterGoal = ref(2000)
 const waterIncrement = 250
 
-// Store water intake separately for each date
-const waterIntakeByDate = ref(
-  JSON.parse(localStorage.getItem('leaflowWaterIntakeByDate') || '{}')
-)
+const waterIntake = ref(0)
+const isSavingWater = ref(false)
 
 // Get selected date in YYYY-MM-DD format
 const waterDateKey = computed(() => {
@@ -448,23 +446,96 @@ const waterDateKey = computed(() => {
   ].join('-')
 })
 
-// Get water intake for selected date
-const waterIntake = computed(() => {
-  return waterIntakeByDate.value[waterDateKey.value] || 0
-})
+// Get water intake from database
+const fetchWaterIntake = async () => {
+  waterIntake.value = 0
 
-// Save water intake
-const saveWaterIntake = (amount) => {
-  waterIntakeByDate.value[waterDateKey.value] = amount
+  try {
+    const session = JSON.parse(
+      localStorage.getItem('leaflow-session') || 'null'
+    )
 
-  localStorage.setItem(
-    'leaflowWaterIntakeByDate',
-    JSON.stringify(waterIntakeByDate.value)
-  )
+    if (!session?.access_token) {
+      throw new Error('Your session has expired. Please log in again.')
+    }
+
+    const params = new URLSearchParams({
+      intakeDate: waterDateKey.value,
+    })
+
+    const response = await fetch(
+      `http://localhost:5000/api/planner/water-intake?${params}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to load water intake.')
+    }
+
+    waterIntake.value = result.data?.amount_ml || 0
+  } catch (error) {
+    console.error('Fetch water intake error:', error)
+  }
+}
+watch(waterDateKey, () => {
+  fetchWaterIntake()
+}, { immediate: true })
+
+// Save water intake to database
+const saveWaterIntake = async (amount) => {
+  if (isSavingWater.value) return
+
+  isSavingWater.value = true
+
+  try {
+    const session = JSON.parse(
+      localStorage.getItem('leaflow-session') || 'null'
+    )
+
+    if (!session?.access_token) {
+      throw new Error('Your session has expired. Please log in again.')
+    }
+
+    const response = await fetch(
+      'http://localhost:5000/api/planner/water-intake',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          intakeDate: waterDateKey.value,
+          amountMl: amount,
+        }),
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to save water intake.')
+    }
+
+    waterIntake.value = result.data.amount_ml
+  } catch (error) {
+    console.error('Save water intake error:', error)
+    alert(error.message)
+  } finally {
+    isSavingWater.value = false
+  }
 }
 
 // Add water
 const addWater = () => {
+  if (isSavingWater.value) return
+
   saveWaterIntake(
     Math.min(waterIntake.value + waterIncrement, waterGoal.value)
   )
@@ -472,6 +543,8 @@ const addWater = () => {
 
 // Remove water
 const removeWater = () => {
+  if (isSavingWater.value) return
+
   saveWaterIntake(
     Math.max(waterIntake.value - waterIncrement, 0)
   )
