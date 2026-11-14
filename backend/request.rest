@@ -1,0 +1,42 @@
+### Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gungwitaradiani@gmail.com",
+  "password": "T.fP6p6.uGWtf3E"
+}
+
+### Test Authentication
+GET http://localhost:5000/api/planner/test
+Authorization: Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6ImU2NGRhZjU2LWJlNGYtNDFjZi05YWVkLTdhYTliNjQzNzY1MSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3pjcm1qdHJrdGhkanR0c3R0cW1rLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwNjA4MDQzMC0xYzJkLTRiM2MtOGVjYy0yZjkyMzY2N2IzZjYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzk0NjA0NTE3LCJpYXQiOjE3OTQ2MDA5MTcsImVtYWlsIjoiZ3VuZ3dpdGFyYWRpYW5pQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZGlzcGxheV9uYW1lIjoidXp1IiwiZW1haWwiOiJndW5nd2l0YXJhZGlhbmlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDYwODA0MzAtMWMyZC00YjNjLThlY2MtMmY5MjM2NjdiM2Y2In0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3OTQ2MDA5MTd9XSwic2Vzc2lvbl9pZCI6IjM1NGNlNzNjLTUwNjMtNGIxMC04MzBkLThhYTY0MzAwNDI4NyIsImlzX2Fub255bW91cyI6ZmFsc2V9.BT8ExxRvV_SIhiruqgmm1lCLY7fzxW2yD8KsIma5TEYzPHOqhi3LilhC8Iq9ezoIk-2SFyQRC-hh56ds6LCsjg
+
+### Generate Meal Plan
+POST http://localhost:5000/api/planner/generate
+Authorization: Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6ImU2NGRhZjU2LWJlNGYtNDFjZi05YWVkLTdhYTliNjQzNzY1MSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3pjcm1qdHJrdGhkanR0c3R0cW1rLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwNjA4MDQzMC0xYzJkLTRiM2MtOGVjYy0yZjkyMzY2N2IzZjYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzk0NjA4NDI3LCJpYXQiOjE3OTQ2MDQ4MjcsImVtYWlsIjoiZ3VuZ3dpdGFyYWRpYW5pQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZGlzcGxheV9uYW1lIjoidXp1IiwiZW1haWwiOiJndW5nd2l0YXJhZGlhbmlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDYwODA0MzAtMWMyZC00YjNjLThlY2MtMmY5MjM2NjdiM2Y2In0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3OTQ2MDQ4Mjd9XSwic2Vzc2lvbl9pZCI6IjM3MThlYzI0LThmYjctNDliNC1hMDk2LTNmZTdmZjZlMzA0ZCIsImlzX2Fub255bW91cyI6ZmFsc2V9.L87biSidLjXNNb0Ob0EPmfJTYW0vogGKrpNwnKXWlCVIM3QJSjjT2phyvdG7ZGm5YHvvuyy0GoQr-eDoSGRWIA
+Content-Type: application/json
+
+{
+  "startDate": "2026-11-14",
+  "duration": 2,
+  "questionnaireAnswers": {
+    "goal": "Eat Healthier",
+    "nutritionFocus": [
+      "Higher protein",
+      "More vegetables and fiber"
+    ],
+    "mealPreferences": ["Balanced meals"],
+    "dietaryPatterns": ["No Restrictions"],
+    "allergies": [],
+    "cuisine": ["Indonesian", "Asian"],
+    "dislikedFoods": "None",
+    "budgetAmount": "50000",
+    "budgetPeriod": "Per Day",
+    "preparationTime": "30 minutes",
+    "includedMeals": [
+      "Breakfast",
+      "Lunch",
+      "Dinner"
+    ]
+  }
+}

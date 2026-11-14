@@ -1,5 +1,5 @@
-<script setup>
 
+<script setup>
 defineProps({
   title: {
     type: String,
@@ -14,15 +14,19 @@ defineProps({
     default: 'Not planned yet',
   },
 })
+
+const emit = defineEmits(['edit'])
 </script>
 
 <template>
-  <div
-    class="flex min-w-0 flex-col rounded-[10px] border border-gray-200 bg-white p-3"
+  <button
+    type="button"
+    class="flex min-w-0 w-full flex-col rounded-[10px] border border-gray-200 bg-white p-3 text-left transition hover:border-(--color-primary) hover:shadow-sm"
+    @click="emit('edit', title)"
   >
     <!-- Meal Image / Icon -->
     <div
-      class="flex h-[110px] items-center justify-center rounded-lg bg-[#F1F8F1]"
+      class="flex h-[110px] w-full items-center justify-center rounded-lg bg-[#F1F8F1]"
     >
       <component
         :is="icon"
@@ -34,7 +38,7 @@ defineProps({
 
     <!-- Meal Information -->
     <div class="mt-3">
-      <h3 class="text-xs font-reguler text-(--color-text)]">
+      <h3 class="text-xs font-normal text-(--color-text)">
         {{ title }}
       </h3>
 
@@ -42,5 +46,5 @@ defineProps({
         {{ meal }}
       </p>
     </div>
-  </div>
+  </button>
 </template>

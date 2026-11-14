@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeft, ChevronRight, Check, X } from 'lucide-vue-next'
 
@@ -33,6 +33,21 @@ const answers = reactive({
   duration: '',
   preparationTime: '',
   includedMeals: [],
+})
+
+
+onMounted(() => {
+  const savedAnswers = localStorage.getItem('leaflowQuestionnaire')
+
+  if (!savedAnswers) return
+
+  try {
+    const parsedAnswers = JSON.parse(savedAnswers)
+
+    Object.assign(answers, parsedAnswers)
+  } catch (error) {
+    console.error('Failed to restore questionnaire answers:', error)
+  }
 })
 
 const questions = [
@@ -315,17 +330,74 @@ const isAnswered = computed(() => {
   return Boolean(value)
 })
 
-const nextStep = () => {
+
+
+const nextStep = async () => {
   if (!isAnswered.value) return
 
   if (currentStep.value < questions.length - 1) {
     currentStep.value++
     scrollToTop()
-  } else {
-    console.log(
-      'Meal Plan Questionnaire:',
-      JSON.parse(JSON.stringify(answers))
+    return
+  }
+
+  try {
+    const session = JSON.parse(
+      localStorage.getItem('leaflow-session')
     )
+
+    if (!session?.access_token) {
+      alert('Session expired. Please log in again.')
+      router.push('/login')
+      return
+    }
+
+    const questionnaireData = {
+      ...answers,
+      endDate: endDate.value,
+    }
+
+    const editingId = localStorage.getItem(
+      'leaflowEditingMealPlanId'
+    )
+
+    const endpoint = editingId
+      ? `http://localhost:5000/api/planner/${editingId}`
+      : 'http://localhost:5000/api/planner'
+
+    const response = await fetch(endpoint, {
+      method: editingId ? 'PATCH' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(questionnaireData),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to save meal plan.')
+    }
+
+    localStorage.setItem(
+      'leaflowQuestionnaire',
+      JSON.stringify(questionnaireData)
+    )
+
+    localStorage.setItem(
+      'leaflowMealPlan',
+      JSON.stringify(result.data)
+    )
+
+    if (editingId) {
+      localStorage.removeItem('leaflowEditingMealPlanId')
+    }
+
+    router.push('/dashboard/planner/result')
+  } catch (error) {
+    console.error('Save meal plan error:', error)
+    alert(error.message || 'Something went wrong.')
   }
 }
 
