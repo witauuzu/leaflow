@@ -794,4 +794,47 @@ router.post('/water-intake', authenticateUser, async (req, res) => {
   }
 })
 
+
+// Get all meal plans for Calendar
+router.get('/calendar', authenticateUser, async (req, res) => {
+  try {
+    const { data, error } = await req.supabase
+      .from('meal_plans')
+      .select(`
+        id,
+        start_date,
+        end_date,
+        duration,
+        status,
+        meal_items (
+          id,
+          meal_date,
+          meal_type,
+          name,
+          portion,
+          calories,
+          protein,
+          carbs,
+          fat
+        )
+      `)
+      .eq('user_id', req.user.id)
+      .order('start_date', { ascending: true })
+
+    if (error) throw error
+
+    return res.status(200).json({
+      status: 'success',
+      data: data || [],
+    })
+  } catch (error) {
+    console.error('Get calendar meal plans error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to load calendar meal plans.',
+    })
+  }
+})
+
 module.exports = router
