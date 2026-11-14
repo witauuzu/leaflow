@@ -199,8 +199,8 @@ export const weeklyCalories = [
 ]
 
 export const nutritionSummary = {
-  name: 'Alya Rahma',
-  email: 'alya.rahma@email.com',
+  name: 'User A',
+  email: 'usera@email.com',
   goal: 'Balanced nutrition',
   dailyBudget: 75000,
   calories: { target: 2000, consumed: 1420 },

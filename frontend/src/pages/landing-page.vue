@@ -90,11 +90,12 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
 
           <h1 v-reveal="{ delay: 60 }" class="mt-6 text-balance text-[clamp(2.9rem,6.2vw,5rem)] font-semibold leading-[0.96] tracking-[-0.055em] text-white">
             Eat well every day,
-            <span class="text-secondary">with meals that fit your life.</span>
+            <span class="text-primary">already planned.</span>
           </h1>
 
-          <p v-reveal="{ delay: 120 }" class="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-white/75 sm:text-base">
-            Leaflow turns your goals, budget, and pantry into a clear meal plan with nutrition counted, prices visible, and every shopping trip planned ahead.
+          <p v-reveal="{ delay: 120 }" class="mt-6 max-w-lg text-pretty text-[15px] leading-7 text-white sm:text-base">
+            <!-- Leaflow turns your goals, budget, and pantry into a clear meal plan with nutrition counted, prices visible, and every shopping trip planned ahead. -->
+            Leaflow turns your goals, budget, and pantry into a priced, nutrition-tracked meal plan and shopping list.
           </p>
 
           <div v-reveal="{ delay: 180 }" class="mt-8 flex flex-wrap items-center gap-3">
@@ -102,13 +103,13 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
               Start planning free
               <ArrowRight :size="17" />
             </RouterLink>
-            <RouterLink to="/explore" class="btn border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/20 btn-lg">
+            <RouterLink to="/explore" class="btn border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/30 btn-lg">
               <Utensils :size="16" />
               Browse meals
             </RouterLink>
           </div>
 
-          <div v-reveal="{ delay: 240 }" class="mt-10 flex flex-wrap items-center gap-5 text-sm text-white/65">
+          <div v-reveal="{ delay: 240 }" class="mt-16 flex flex-wrap items-center gap-5 text-sm text-white/65">
             <div class="flex items-center">
               <span
                 v-for="(initial, index) in ['A', 'R', 'D', 'S']"
@@ -148,7 +149,7 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
               <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Calories</p>
               <HeartPulse :size="15" class="text-primary" />
             </div>
-            <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.05em] text-ink">
+            <p class="mt-2 text-[1.65rem] font-semibold tracking-tighter text-ink">
               <AnimatedNumber :value="1420" />
               <span class="text-xs font-medium text-muted">/ 2,000</span>
             </p>
@@ -184,7 +185,7 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
     </section>
 
     <!-- Trust / contrast cards -->
-    <section class="relative pb-10 lg:pb-12">
+    <section class="relative pt-12 pb-4 lg:pb-6">
       <div class="shell">
         <div class="relative overflow-hidden rounded-[20px] border border-primary/15 bg-accent/40 p-4 shadow-[0_30px_70px_-50px_rgba(6,59,0,.55)] sm:p-6">
           <div class="pointer-events-none absolute inset-0 texture-dots opacity-30" />
@@ -217,10 +218,10 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
     <!-- Features -->
     <section class="relative py-16 lg:py-20">
       <div class="shell">
-        <div class="max-w-2xl">
+        <div class="max-w-5xl">
           <p v-reveal class="eyebrow">Everything in one flow</p>
           <h2 v-reveal="{ delay: 50 }" class="mt-3 text-balance text-[clamp(1.95rem,3.6vw,2.9rem)] font-semibold leading-[1.04] tracking-[-0.045em]">Meal planning that fits your real life.</h2>
-          <p v-reveal="{ delay: 100 }" class="mt-4 max-w-xl text-[14.5px] leading-7 text-muted">Nutrition, budget, and pantry—connected in one clear plan.</p>
+          <p v-reveal="{ delay: 100 }" class="mt-4 max-w-xl text-[14.5px] leading-7 text-muted">Nutrition, budget, and pantry. All connected in one clear plan.</p>
         </div>
 
         <div class="mt-10 grid gap-4 md:grid-cols-2">
@@ -276,61 +277,61 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
         </div>
 
         <div v-reveal="{ delay: 120 }" class="relative">
-            <div class="absolute -inset-3 rounded-[24px] bg-primary/15 blur-2xl" />
-            <div class="relative overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_36px_80px_-52px_rgba(6,59,0,.6)]">
-              <div class="flex items-center justify-between border-b border-line bg-accent/40 px-5 py-4">
-                <div>
-                  <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Today's meals</p>
-                  <p class="mt-0.5 text-sm font-semibold text-ink">Thursday, 13 November</p>
-                </div>
-                <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-accent text-primary-deep">
-                  <CalendarDays :size="18" />
+          <div class="absolute -inset-3 rounded-[24px] bg-primary/15 blur-2xl" />
+          <div class="relative overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_36px_80px_-52px_rgba(6,59,0,.6)]">
+            <div class="flex items-center justify-between border-b border-line bg-accent/40 px-5 py-4">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Today's meals</p>
+                <p class="mt-0.5 text-sm font-semibold text-ink">Thursday, 13 November</p>
+              </div>
+              <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-accent text-primary-deep">
+                <CalendarDays :size="18" />
+              </span>
+            </div>
+
+            <div class="divide-y divide-line">
+              <div v-for="meal in previewMeals" :key="meal.id" class="flex items-center gap-3 px-5 py-3.5">
+                <span class="h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-accent">
+                  <FoodVisual :image="meal.image" :colors="meal.colors" :label="meal.name" />
                 </span>
-              </div>
-
-              <div class="divide-y divide-line">
-                <div v-for="meal in previewMeals" :key="meal.id" class="flex items-center gap-3 px-5 py-3.5">
-                  <span class="h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-accent">
-                    <FoodVisual :image="meal.image" :colors="meal.colors" :label="meal.name" />
-                  </span>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-[13px] font-semibold text-ink">{{ meal.name }}</p>
-                    <p class="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
-                      <span>{{ meal.category }}</span>
-                      <span class="h-1 w-1 rounded-full bg-line-strong" />
-                      <span class="inline-flex items-center gap-1">
-                        <Timer :size="11" />
-                        {{ meal.time }} min
-                      </span>
-                    </p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-[12px] font-semibold text-ink">{{ meal.calories }} kcal</p>
-                    <p class="mt-0.5 text-[11px] text-muted">{{ formatRupiah(meal.price) }}</p>
-                  </div>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[13px] font-semibold text-ink">{{ meal.name }}</p>
+                  <p class="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
+                    <span>{{ meal.category }}</span>
+                    <span class="h-1 w-1 rounded-full bg-line-strong" />
+                    <span class="inline-flex items-center gap-1">
+                      <Timer :size="11" />
+                      {{ meal.time }} min
+                    </span>
+                  </p>
                 </div>
-              </div>
-
-              <div class="flex items-center justify-between bg-accent/40 px-5 py-4">
-                <div class="flex items-center gap-2 text-[12px] font-medium text-ink">
-                  <BadgeCheck :size="16" class="text-primary" />
-                  Within today's budget
+                <div class="text-right">
+                  <p class="text-[12px] font-semibold text-ink">{{ meal.calories }} kcal</p>
+                  <p class="mt-0.5 text-[11px] text-muted">{{ formatRupiah(meal.price) }}</p>
                 </div>
-                <span class="rounded-full bg-accent px-3 py-1 text-[11px] font-semibold text-primary-deep"> <AnimatedNumber :value="1420" /> kcal </span>
               </div>
             </div>
 
-            <div class="absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-[12px] border border-line bg-white px-4 py-3 shadow-[0_20px_40px_-30px_rgba(6,59,0,.6)] sm:flex">
-              <span class="grid h-8 w-8 place-items-center rounded-lg bg-warning/10 text-warning">
-                <Wallet :size="16" />
-              </span>
-              <div>
-                <p class="text-[10px] uppercase tracking-[0.12em] text-muted">Saved this week</p>
-                <p class="text-sm font-semibold text-ink">Rp 168,000</p>
+            <div class="flex items-center justify-between bg-accent/40 px-5 py-4">
+              <div class="flex items-center gap-2 text-[12px] font-medium text-ink">
+                <BadgeCheck :size="16" class="text-primary" />
+                Within today's budget
               </div>
+              <span class="rounded-full bg-accent px-3 py-1 text-[11px] font-semibold text-primary-deep"> <AnimatedNumber :value="1420" /> kcal </span>
+            </div>
+          </div>
+
+          <div class="absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-[12px] border border-line bg-white px-4 py-3 shadow-[0_20px_40px_-30px_rgba(6,59,0,.6)] sm:flex">
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-warning/10 text-warning">
+              <Wallet :size="16" />
+            </span>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.12em] text-muted">Saved this week</p>
+              <p class="text-sm font-semibold text-ink">Rp 168,000</p>
             </div>
           </div>
         </div>
+      </div>
     </section>
 
     <!-- Meal preview -->
@@ -392,7 +393,7 @@ const previewMeals = ["pecel-rice", "salmon-bowl", "overnight-oats"].map((id) =>
     </section>
 
     <!-- CTA -->
-    <section class="py-14 lg:py-16">
+    <section class="pb-16 lg:pb-24">
       <div class="shell">
         <div v-reveal class="relative overflow-hidden rounded-[20px] cta-surface-dark px-6 py-10 shadow-[0_30px_70px_-40px_rgba(6,59,0,.65)] sm:px-10 lg:py-12">
           <div class="pointer-events-none absolute inset-0 texture-dots-light opacity-30" />
