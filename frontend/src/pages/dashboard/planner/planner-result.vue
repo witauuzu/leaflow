@@ -142,7 +142,6 @@ const formattedDateRange = computed(() => {
 })
 
 // Return to questionnaire
-
 const editAnswers = () => {
   const savedMealPlan = JSON.parse(
     localStorage.getItem('leaflowMealPlan')
@@ -423,7 +422,27 @@ const tryAgainMeal = async () => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-white px-5 py-7 sm:px-8 lg:px-10">
+  <main class="min-h-screen bg-white">
+    <!-- Full Page Loading -->
+<div
+  v-if="isGenerating"
+  class="flex min-h-screen flex-col items-center justify-center px-5 text-center"
+>
+  <div
+    class="mb-4 size-10 animate-spin rounded-full border-4 border-[#E5F4E5] border-t-[#66BB6A]"
+  ></div>
+
+  <h2 class="font-semibold text-[#063B00]">
+    Creating Your Meal Plan
+  </h2>
+
+  <p class="mt-2 text-sm text-gray-500">
+    Please wait while we prepare meals based on your preferences.
+  </p>
+</div>
+
+<!-- Page Content -->
+<div v-else class="px-5 py-7 sm:px-8 lg:px-10">
 
     <div class="mx-auto max-w-7xl">
 
@@ -492,27 +511,8 @@ const tryAgainMeal = async () => {
         </div>
       </header>
 
-      <!-- Loading State -->
-      <div
-        v-if="isGenerating"
-        class="flex flex-col items-center justify-center py-20 text-center"
-      >
-        <div
-          class="mb-4 size-10 animate-spin rounded-full border-4 border-[#E5F4E5] border-t-[#66BB6A]"
-        ></div>
-
-        <h2 class="font-semibold text-[#063B00]">
-          Creating Your Meal Plan
-        </h2>
-
-        <p class="mt-2 text-sm text-gray-500">
-          Please wait while we prepare meals based on your preferences.
-        </p>
-      </div>
-
       <!-- Error State -->
-      <div
-        v-else-if="generateError"
+      <div v-if="generateError"
         class="rounded-xl border border-red-100 bg-red-50 px-6 py-8 text-center"
       >
         <p class="font-medium text-red-600">
@@ -643,8 +643,10 @@ const tryAgainMeal = async () => {
       </section>
 
       <!-- End of Plan -->
-      <div class="mt-2 rounded-xl bg-[#F3F9F3] px-5 py-8 text-center">
-
+      <div
+        v-if="!isGenerating && !generateError"
+        class="mt-2 rounded-xl bg-[#F3F9F3] px-5 py-8 text-center"
+      >
         <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#DDF0DD]">
           <Check :size="23" class="text-(--color-primary)" />
         </div>
@@ -656,10 +658,10 @@ const tryAgainMeal = async () => {
         <p class="mt-1 text-sm text-gray-500">
           Review your meals before approving your plan.
         </p>
-
       </div>
 
     </div>
+  </div>
 
     <!-- Approve Confirmation Modal -->
     <Teleport to="body">

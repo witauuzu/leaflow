@@ -33,8 +33,77 @@ const answers = reactive({
   duration: '',
   preparationTime: '',
   includedMeals: [],
+  nutritionTargetMethod: '',
+  age: '',
+  weight: '',
+  height: '',
+  activityLevel: '',
+  targetCalories: '',
+  targetProtein: '',
+  targetCarbs: '',
+  targetFat: '',
 })
 
+const nutritionTargetsLoading = ref(false)
+const nutritionTargetsError = ref('')
+const nutritionTargetsGenerated = ref(false)
+
+const generateNutritionTargets = async () => {
+  nutritionTargetsLoading.value = true
+  nutritionTargetsError.value = ''
+  nutritionTargetsGenerated.value = false
+
+  try {
+    const session = JSON.parse(
+      localStorage.getItem('leaflow-session') || 'null'
+    )
+
+    if (!session?.access_token) {
+      throw new Error('Your session has expired. Please log in again.')
+    }
+
+    const response = await fetch(
+      'http://localhost:5000/api/planner/nutrition-targets',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          age: answers.age,
+          weight: answers.weight,
+          height: answers.height,
+          activityLevel: answers.activityLevel,
+          goal: answers.goal,
+          nutritionFocus: answers.nutritionFocus,
+        }),
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || 'Failed to generate nutrition targets.'
+      )
+    }
+
+    answers.targetCalories = String(result.data.calories)
+    answers.targetProtein = String(result.data.protein)
+    answers.targetCarbs = String(result.data.carbs)
+    answers.targetFat = String(result.data.fat)
+
+    nutritionTargetsGenerated.value = true
+    return true
+  } catch (error) {
+    console.error('Generate nutrition targets error:', error)
+    nutritionTargetsError.value = error.message
+    return false
+  } finally {
+    nutritionTargetsLoading.value = false
+  }
+}
 
 onMounted(() => {
   const savedAnswers = localStorage.getItem('leaflowQuestionnaire')
@@ -81,6 +150,12 @@ const questions = [
       'No Specific Focus',
       'Other',
     ],
+  },
+  {
+    key: 'nutritionTargets',
+    title: 'How would you like to set your nutrition targets?',
+    description: 'Choose how you want to determine your daily nutrition goals.',
+    type: 'nutritionTargets',
   },
   {
     key: 'mealPreferences',
@@ -327,15 +402,54 @@ const isAnswered = computed(() => {
       Boolean(endDate.value)
     )
   }
+    if (question.type === 'nutritionTargets') {
+    const method = answers.nutritionTargetMethod
+
+    if (method === 'skip') return true
+
+    if (method === 'ai') {
+      return (
+        Number(answers.age) > 0 &&
+        Number(answers.weight) > 0 &&
+        Number(answers.height) > 0 &&
+        Boolean(answers.activityLevel)
+      )
+    }
+
+    if (method === 'manual') {
+      const targets = [
+        answers.targetCalories,
+        answers.targetProtein,
+        answers.targetCarbs,
+        answers.targetFat,
+      ]
+
+      return targets.some(
+        target => target !== '' && Number(target) > 0
+      )
+    }
+
+    return false
+  }
+
   return Boolean(value)
 })
-
-
 
 const nextStep = async () => {
   if (!isAnswered.value) return
 
   if (currentStep.value < questions.length - 1) {
+
+    // Generate AI nutrition targets
+    if (
+      activeQuestion.value.type === 'nutritionTargets' &&
+      answers.nutritionTargetMethod === 'ai'
+    ) {
+      const success = await generateNutritionTargets()
+
+      if (!success) return
+    }
+
     currentStep.value++
     scrollToTop()
     return
@@ -494,9 +608,202 @@ const leavePlanner = () => {
             </p>
           </div>
 
+          <!-- Nutrition Targets -->
+          <div
+            v-if="activeQuestion.type === 'nutritionTargets'"
+            class="space-y-3"
+          >
+            <button
+              v-for="option in [
+                { value: 'ai', title: 'Get AI Suggestions', description: 'Get nutrition targets based on your goals and personal information.' },
+                { value: 'manual', title: 'Set Manually', description: 'Enter your own daily nutrition targets.' },
+                { value: 'skip', title: 'Skip for Now', description: 'You can set your nutrition targets later.' },
+              ]"
+              :key="option.value"
+              type="button"
+              @click="answers.nutritionTargetMethod = option.value"
+              class="w-full rounded-lg border p-4 text-left transition"
+              :class="answers.nutritionTargetMethod === option.value
+                ? 'border-primary bg-accent/40'
+                : 'border-line bg-white hover:border-primary hover:bg-accent/40'"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-sm font-medium text-ink">
+                    {{ option.title }}
+                  </p>
+                  <p class="mt-1 text-xs leading-relaxed text-muted">
+                    {{ option.description }}
+                  </p>
+                </div>
+
+                <span
+                  class="h-5 w-5 shrink-0 rounded-full border"
+                  :class="answers.nutritionTargetMethod === option.value
+                    ? 'border-primary bg-primary'
+                    : 'border-line-strong'"
+                ></span>
+              </div>
+            </button>
+            <!-- AI Nutrition Information -->
+            <div
+              v-if="answers.nutritionTargetMethod === 'ai'"
+              class="mt-5 space-y-4 rounded-lg border border-line bg-white p-4"
+            >
+              <p class="text-sm font-medium text-ink">
+                Tell us about yourself
+              </p>
+
+              <!-- Age -->
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-ink">
+                  Age
+                </label>
+                <input
+                  v-model="answers.age"
+                  type="number"
+                  min="18"
+                  max="100"
+                  placeholder="Enter your age"
+                  class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+                />
+              </div>
+
+              <!-- Weight -->
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-ink">
+                  Weight (kg)
+                </label>
+                <input
+                  v-model="answers.weight"
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  placeholder="Enter your weight"
+                  class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+                />
+              </div>
+
+              <!-- Height -->
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-ink">
+                  Height (cm)
+                </label>
+                <input
+                  v-model="answers.height"
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  placeholder="Enter your height"
+                  class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+                />
+              </div>
+
+              <!-- Activity Level -->
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-ink">
+                  Activity Level
+                </label>
+                <select
+                  v-model="answers.activityLevel"
+                  class="w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm outline-none focus:border-primary"
+                >
+                  <option value="" disabled>Select your activity level</option>
+                  <option value="sedentary">Sedentary (Little or no exercise)</option>
+                  <option value="light">Lightly Active (1–3 days/week)</option>
+                  <option value="moderate">Moderately Active (3–5 days/week)</option>
+                  <option value="active">Very Active (6–7 days/week)</option>
+                  <option value="very_active">Extra Active (Intense daily activity)</option>
+                </select>
+              </div>
+              <!-- Error Message -->
+              <p
+                v-if="nutritionTargetsError"
+                class="text-sm text-red-500"
+              >
+                {{ nutritionTargetsError }}
+              </p>
+
+              <!-- Success Message -->
+              <p
+                v-if="nutritionTargetsGenerated"
+                class="text-sm font-medium text-green-600"
+              >
+                Your nutrition targets have been generated successfully!
+              </p>
+
+            </div>
+          </div>
+
+          <!-- Manual Nutrition Targets -->
+          <div
+            v-if="answers.nutritionTargetMethod === 'manual'"
+            class="mt-5 space-y-4 rounded-lg border border-line bg-white p-4"
+          >
+            <p class="text-sm font-medium text-ink">
+              Set Your Daily Nutrition Targets
+            </p>
+
+            <!-- Calories -->
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-ink">
+                Calories (kcal)
+              </label>
+              <input
+                v-model="answers.targetCalories"
+                type="number"
+                min="1"
+                placeholder="Enter daily calories"
+                class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <!-- Protein -->
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-ink">
+                Protein (g)
+              </label>
+              <input
+                v-model="answers.targetProtein"
+                type="number"
+                min="1"
+                placeholder="Enter daily protein"
+                class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <!-- Carbs -->
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-ink">
+                Carbs (g)
+              </label>
+              <input
+                v-model="answers.targetCarbs"
+                type="number"
+                min="1"
+                placeholder="Enter daily carbs"
+                class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <!-- Fat -->
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-ink">
+                Fat (g)
+              </label>
+              <input
+                v-model="answers.targetFat"
+                type="number"
+                min="1"
+                placeholder="Enter daily fat"
+                class="w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
           <!-- Single / Multiple Choice -->
           <div
-            v-if="activeQuestion.type === 'single' || activeQuestion.type === 'multiple'"
+            v-else-if="activeQuestion.type === 'single' || activeQuestion.type === 'multiple'"
             class="space-y-3"
           >
             <button
@@ -701,17 +1008,25 @@ const leavePlanner = () => {
           <ChevronLeft :stroke-width="1" :size="17" />
           Previous
         </button>
-
         <button
           type="button"
           @click="nextStep"
-          :disabled="!isAnswered"
+          :disabled="!isAnswered || nutritionTargetsLoading"
           class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {{ currentStep === questions.length - 1 ? 'Finish' : 'Next' }}
-          <ChevronRight v-if="currentStep !== questions.length - 1" :size="17" />
-        </button>
+          {{
+            nutritionTargetsLoading
+              ? 'Generating Targets...'
+              : currentStep === questions.length - 1
+                ? 'Finish'
+                : 'Next'
+          }}
 
+          <ChevronRight
+            v-if="currentStep !== questions.length - 1 && !nutritionTargetsLoading"
+            :size="17"
+          />
+        </button>
       </div>
     </footer>
 

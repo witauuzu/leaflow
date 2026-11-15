@@ -17,7 +17,6 @@ router.get('/test', authenticateUser, (req, res) => {
   })
 })
 
-
 router.post('/', authenticateUser, async (req, res) => {
   try {
     const {
@@ -71,7 +70,6 @@ router.post('/', authenticateUser, async (req, res) => {
   }
 })
 
-
 // Save generated meals to meal_items
 router.put('/:id/meals', authenticateUser, async (req, res) => {
   try {
@@ -111,6 +109,7 @@ router.put('/:id/meals', authenticateUser, async (req, res) => {
         protein: meal.protein ?? null,
         carbs: meal.carbs ?? null,
         fat: meal.fat ?? null,
+        estimated_cost: meal.estimatedCost ?? null,
         planned_time: meal.plannedTime || null,
         preparation_time: meal.preparationTime ?? null,
         ingredients: meal.ingredients || [],
@@ -156,50 +155,6 @@ router.put('/:id/meals', authenticateUser, async (req, res) => {
     })
   }
 })
-
-// Get saved meals from a meal plan
-router.get('/:id/meals', authenticateUser, async (req, res) => {
-  try {
-    const mealPlanId = req.params.id
-
-    // Check meal plan ownership
-    const { data: mealPlan, error: planError } = await req.supabase
-      .from('meal_plans')
-      .select('id')
-      .eq('id', mealPlanId)
-      .single()
-
-    if (planError || !mealPlan) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'Meal plan not found.',
-      })
-    }
-
-    // Get meals
-    const { data: meals, error } = await req.supabase
-      .from('meal_items')
-      .select('*')
-      .eq('meal_plan_id', mealPlanId)
-      .order('meal_date', { ascending: true })
-      .order('meal_type', { ascending: true })
-
-    if (error) throw error
-
-    return res.status(200).json({
-      status: 'success',
-      data: meals,
-    })
-  } catch (error) {
-    console.error('Get meals error:', error)
-
-    return res.status(500).json({
-      status: 'error',
-      message: 'Failed to retrieve meals.',
-    })
-  }
-})
-
 
 // Update a saved meal
 router.patch('/meals/:mealItemId', authenticateUser, async (req, res) => {
@@ -298,6 +253,123 @@ router.patch('/:id', authenticateUser, async (req, res) => {
     return res.status(500).json({
       status: 'fail',
       message: 'Something went wrong.',
+    })
+  }
+})
+
+
+// Generate daily nutrition targets using Gemini AI
+router.post('/nutrition-targets', authenticateUser, async (req, res) => {
+  try {
+    const {
+      age,
+      weight,
+      height,
+      activityLevel,
+      goal,
+      nutritionFocus,
+    } = req.body
+
+    const validActivityLevels = [
+      'sedentary',
+      'light',
+      'moderate',
+      'active',
+      'very_active',
+    ]
+
+    if (
+      !Number.isInteger(Number(age)) ||
+      Number(age) < 18 ||
+      Number(age) > 100 ||
+      !Number.isFinite(Number(weight)) ||
+      Number(weight) <= 0 ||
+      !Number.isFinite(Number(height)) ||
+      Number(height) <= 0 ||
+      !validActivityLevels.includes(activityLevel)
+    ) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide valid personal information.',
+      })
+    }
+
+    const ai = await getGeminiClient()
+
+    const prompt = `
+You are a nutrition estimation assistant.
+
+Estimate general daily nutrition targets for an adult based on the following information.
+
+USER INFORMATION:
+- Age: ${Number(age)} years
+- Weight: ${Number(weight)} kg
+- Height: ${Number(height)} cm
+- Activity level: ${activityLevel}
+- Main goal: ${goal || 'General healthy eating'}
+- Nutrition focus: ${JSON.stringify(nutritionFocus || [])}
+
+INSTRUCTIONS:
+1. Estimate daily calorie requirements using an appropriate evidence-based method.
+2. Suggest reasonable daily protein, carbohydrate, and fat targets in grams.
+3. Consider the user's activity level and stated goals.
+4. Keep the targets balanced and realistic.
+5. Do not recommend extreme calorie restriction.
+6. Return whole numbers only.
+7. These are general estimates, not medical prescriptions.
+
+Return ONLY valid JSON in this format:
+
+{
+  "calories": 2000,
+  "protein": 100,
+  "carbs": 250,
+  "fat": 67
+}
+
+Do not include Markdown or explanations.
+`
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash-lite',
+      contents: prompt,
+    })
+
+    const cleanedResponse = response.text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim()
+
+    const targets = JSON.parse(cleanedResponse)
+
+    const requiredFields = [
+      'calories',
+      'protein',
+      'carbs',
+      'fat',
+    ]
+
+    for (const field of requiredFields) {
+      if (
+        typeof targets[field] !== 'number' ||
+        !Number.isFinite(targets[field]) ||
+        targets[field] <= 0
+      ) {
+        throw new Error(`Invalid nutrition target: ${field}`)
+      }
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Nutrition targets generated successfully.',
+      data: targets,
+    })
+  } catch (error) {
+    console.error('Generate nutrition targets error:', error)
+
+    return res.status(500).json({
+      status: 'fail',
+      message: 'Failed to generate nutrition targets.',
     })
   }
 })
@@ -476,6 +548,7 @@ router.post('/consumption', authenticateUser, async (req, res) => {
       protein,
       carbs,
       fat,
+      recordedCost,
     } = req.body
 
     if (!mealDate || !mealType || !mealName?.trim()) {
@@ -499,6 +572,8 @@ router.post('/consumption', authenticateUser, async (req, res) => {
         protein: protein ?? null,
         carbs: carbs ?? null,
         fat: fat ?? null,
+        recorded_cost: recordedCost ?? null,
+        cost_type: recordedCost != null ? 'actual' : null,
         consumed_at: new Date().toISOString(),
       })
       .select()
@@ -564,7 +639,6 @@ Return ONLY valid JSON in this format:
   "fat": 15
 }
 `
-
     const response = await ai.models.generateContent({
       model: 'gemini-3.5-flash-lite',
       contents: prompt,
@@ -641,6 +715,8 @@ router.post('/meals/:mealItemId/consume', authenticateUser, async (req, res) => 
         protein: meal.protein,
         carbs: meal.carbs,
         fat: meal.fat,
+        recorded_cost: meal.estimated_cost ?? null,
+        cost_type: meal.estimated_cost != null ? 'estimated' : null,
         consumed_at: new Date().toISOString(),
       })
       .select()
@@ -673,7 +749,6 @@ router.post('/meals/:mealItemId/consume', authenticateUser, async (req, res) => 
     })
   }
 })
-
 
 // Get actual meal consumption logs
 router.get('/consumption', authenticateUser, async (req, res) => {
@@ -710,6 +785,251 @@ router.get('/consumption', authenticateUser, async (req, res) => {
   }
 })
 
+
+// Unmark a planned meal as consumed
+router.delete('/meals/:mealItemId/consume', authenticateUser, async (req, res) => {
+  try {
+    const mealItemId = req.params.mealItemId
+
+    // Check the planned meal
+    const { data: meal, error: mealError } = await req.supabase
+      .from('meal_items')
+      .select('id, is_consumed')
+      .eq('id', mealItemId)
+      .single()
+
+    if (mealError || !meal) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Meal not found.',
+      })
+    }
+
+    if (!meal.is_consumed) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Meal is already marked as not consumed.',
+      })
+    }
+
+    // Update planned meal status
+    const { error: updateError } = await req.supabase
+      .from('meal_items')
+      .update({
+        is_consumed: false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', mealItemId)
+
+    if (updateError) throw updateError
+
+    // Delete the related consumption log
+    const { error: deleteError } = await req.supabase
+      .from('meal_consumption_logs')
+      .delete()
+      .eq('meal_item_id', mealItemId)
+      .eq('user_id', req.user.id)
+
+    if (deleteError) {
+      // Restore consumed status if deleting the log fails
+      await req.supabase
+        .from('meal_items')
+        .update({
+          is_consumed: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', mealItemId)
+
+      throw deleteError
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Meal consumption successfully undone.',
+    })
+  } catch (error) {
+    console.error('Undo meal consumption error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to undo meal consumption.',
+    })
+  }
+})
+
+// Get nutrition trends
+router.get('/nutrition-trends', authenticateUser, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Start date and end date are required.',
+      })
+    }
+
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+    if (
+      !datePattern.test(startDate) ||
+      !datePattern.test(endDate) ||
+      startDate > endDate
+    ) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid date range.',
+      })
+    }
+
+    const { data, error } = await req.supabase
+      .from('meal_consumption_logs')
+      .select('meal_date, calories, protein, carbs, fat')
+      .gte('meal_date', startDate)
+      .lte('meal_date', endDate)
+      .order('meal_date', { ascending: true })
+
+    if (error) throw error
+
+    // Group consumption data by date
+    const dailyNutrition = {}
+
+    data.forEach((meal) => {
+      const date = meal.meal_date
+
+      if (!dailyNutrition[date]) {
+        dailyNutrition[date] = {
+          date,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+        }
+      }
+
+      dailyNutrition[date].calories += Number(meal.calories) || 0
+      dailyNutrition[date].protein += Number(meal.protein) || 0
+      dailyNutrition[date].carbs += Number(meal.carbs) || 0
+      dailyNutrition[date].fat += Number(meal.fat) || 0
+    })
+
+    return res.status(200).json({
+      status: 'success',
+      data: Object.values(dailyNutrition),
+    })
+  } catch (error) {
+    console.error('Get nutrition trends error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to retrieve nutrition trends.',
+    })
+  }
+})
+
+
+// Get food spending summary
+router.get('/food-spending', authenticateUser, async (req, res) => {
+  try {
+    const { selectedDate } = req.query
+
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+    if (!selectedDate || !datePattern.test(selectedDate)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'A valid selected date is required.',
+      })
+    }
+
+    // Get active meal plan for the selected date
+    const { data: plan, error: planError } = await req.supabase
+      .from('meal_plans')
+      .select('id, start_date, end_date, questionnaire_answers')
+      .eq('user_id', req.user.id)
+      .eq('status', 'active')
+      .lte('start_date', selectedDate)
+      .gte('end_date', selectedDate)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (planError) throw planError
+
+    if (!plan) {
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          budgetAmount: 0,
+          budgetPeriod: null,
+          actualSpending: 0,
+          remainingBudget: 0,
+          periodStart: null,
+          periodEnd: null,
+        },
+      })
+    }
+
+    const answers = plan.questionnaire_answers || {}
+    const budgetAmount = Number(answers.budgetAmount) || 0
+    const budgetPeriod = answers.budgetPeriod || 'Per Day'
+
+    // Determine spending period
+    const date = new Date(`${selectedDate}T00:00:00.000Z`)
+    const periodStart = new Date(date)
+    const periodEnd = new Date(date)
+
+    if (budgetPeriod === 'Per Week') {
+      const day = date.getUTCDay()
+      const daysSinceMonday = (day + 6) % 7
+
+      periodStart.setUTCDate(date.getUTCDate() - daysSinceMonday)
+      periodEnd.setUTCDate(periodStart.getUTCDate() + 6)
+    } else if (budgetPeriod === 'Per Month') {
+      periodStart.setUTCDate(1)
+      periodEnd.setUTCMonth(date.getUTCMonth() + 1, 0)
+    }
+
+    const formatDate = (value) => value.toISOString().slice(0, 10)
+
+    const startDate = formatDate(periodStart)
+    const endDate = formatDate(periodEnd)
+
+    // Get actual spending within the calculated period
+    const { data: logs, error: logsError } = await req.supabase
+      .from('meal_consumption_logs')
+      .select('recorded_cost')
+      .eq('meal_plan_id', plan.id)
+      .gte('meal_date', startDate)
+      .lte('meal_date', endDate)
+
+    if (logsError) throw logsError
+
+    const actualSpending = (logs || []).reduce(
+      (total, log) => total + (Number(log.recorded_cost) || 0),
+      0
+    )
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        budgetAmount,
+        budgetPeriod,
+        actualSpending,
+        remainingBudget: budgetAmount - actualSpending,
+        periodStart: startDate,
+        periodEnd: endDate,
+      },
+    })
+  } catch (error) {
+    console.error('Get food spending error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to load food spending.',
+    })
+  }
+})
 
 // Get daily water intake
 router.get('/water-intake', authenticateUser, async (req, res) => {
@@ -833,6 +1153,81 @@ router.get('/calendar', authenticateUser, async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Failed to load calendar meal plans.',
+    })
+  }
+})
+
+router.get('/:id/meals', authenticateUser, async (req, res) => {
+  try {
+    const mealPlanId = req.params.id
+
+    // Check meal plan ownership
+    const { data: mealPlan, error: planError } = await req.supabase
+      .from('meal_plans')
+      .select('id')
+      .eq('id', mealPlanId)
+      .single()
+
+    if (planError || !mealPlan) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Meal plan not found.',
+      })
+    }
+
+    // Get meals
+    const { data: meals, error } = await req.supabase
+      .from('meal_items')
+      .select('*')
+      .eq('meal_plan_id', mealPlanId)
+      .order('meal_date', { ascending: true })
+      .order('meal_type', { ascending: true })
+
+    if (error) throw error
+
+    return res.status(200).json({
+      status: 'success',
+      data: meals,
+    })
+  } catch (error) {
+    console.error('Get meals error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to retrieve meals.',
+    })
+  }
+})
+
+// Get meal plan details
+router.get('/:id', authenticateUser, async (req, res) => {
+  try {
+    const { data, error } = await req.supabase
+      .from('meal_plans')
+      .select('id, user_id, questionnaire_answers')
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .maybeSingle()
+
+    if (error) throw error
+
+    if (!data) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Meal plan not found.',
+      })
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data,
+    })
+  } catch (error) {
+    console.error('Get meal plan details error:', error)
+
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to retrieve meal plan.',
     })
   }
 })

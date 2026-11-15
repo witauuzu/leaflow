@@ -22,8 +22,11 @@ const savedMealPlanId = computed(() => {
 
 // Get saved meals from Supabase
 const fetchSavedMeals = async () => {
-  if (!savedMealPlanId.value) return
-
+  if (!savedMealPlanId.value) {
+    checkedShoppingItems.value = {}
+    expandedShoppingGroups.value = {}
+    return
+  }
   try {
     isLoadingMeals.value = true
     mealLoadError.value = ''
@@ -101,6 +104,10 @@ const fetchSavedMeals = async () => {
     isLoadingMeals.value = false
   }
 }
+watch(savedMealPlanId, () => {
+  checkedShoppingItems.value = {}
+  expandedShoppingGroups.value = {}
+})
 
 const hasApprovedPlan = computed(() => {
   return approvedPlan.value !== null
@@ -222,7 +229,7 @@ const showMealEditModal = ref(false)
 const selectedMealType = ref('')
 const editedMealName = ref('')
 const editedMealPortion = ref('')
-
+const editedMealCost = ref('')
 const editedMealDetails = ref('')
 const isSavingMeal = ref(false)
 const estimatedNutrition = ref(null)
@@ -237,8 +244,12 @@ const openMealEdit = (mealType) => {
 
 const closeMealEdit = () => {
   showMealEditModal.value = false
+  editedMealName.value = ''
+  editedMealPortion.value = ''
+  editedMealDetails.value = ''
+  editedMealCost.value = ''
+  estimatedNutrition.value = null
 }
-
 
 const saveMealEdit = async () => {
   if (!editedMealName.value.trim()) {
@@ -328,6 +339,11 @@ const saveMealEdit = async () => {
             protein: estimatedNutrition.value.protein,
             carbs: estimatedNutrition.value.carbs,
             fat: estimatedNutrition.value.fat,
+            fat: estimatedNutrition.value.fat,
+            recordedCost:
+              editedMealCost.value !== ''
+                ? Number(editedMealCost.value)
+                : null,
           }),
         }
       )
@@ -383,9 +399,7 @@ const mealDetails = computed(() => {
 
  // Shopping List
 const expandedShoppingGroups = ref({})
-const checkedShoppingItems = ref(
-  JSON.parse(localStorage.getItem('leaflowShoppingCheckedItems') || '{}')
-)
+const checkedShoppingItems = ref({})
 
 const shoppingGroups = computed(() => {
   return selectedMeals.value
@@ -421,11 +435,6 @@ const toggleShoppingGroup = (groupId) => {
 const toggleShoppingItem = (itemId) => {
   checkedShoppingItems.value[itemId] =
     !checkedShoppingItems.value[itemId]
-
-  localStorage.setItem(
-    'leaflowShoppingCheckedItems',
-    JSON.stringify(checkedShoppingItems.value)
-  )
 }
 
 // Water Intake
@@ -558,12 +567,11 @@ const waterProgress = computed(() => {
   )
 })
 
-// Toggle Meal Consumption
 
 const toggleMealConsumed = async (mealIndex) => {
   const meal = selectedMeals.value[mealIndex]
 
-  if (!meal || meal.isConsumed) return
+  if (!meal || !meal.id) return
 
   try {
     const session = JSON.parse(
@@ -574,14 +582,12 @@ const toggleMealConsumed = async (mealIndex) => {
       throw new Error('Your session has expired. Please log in again.')
     }
 
-    if (!meal.id) {
-      throw new Error('Meal ID not found.')
-    }
+    const isConsuming = !meal.isConsumed
 
     const response = await fetch(
       `http://localhost:5000/api/planner/meals/${meal.id}/consume`,
       {
-        method: 'POST',
+        method: isConsuming ? 'POST' : 'DELETE',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -591,18 +597,20 @@ const toggleMealConsumed = async (mealIndex) => {
     const result = await response.json()
 
     if (!response.ok) {
-      throw new Error(result.message || 'Failed to mark meal as consumed.')
+      throw new Error(result.message || 'Failed to update meal consumption.')
     }
 
     // Update local data after database update succeeds
-    meal.isConsumed = true
+    meal.isConsumed = isConsuming
 
     localStorage.setItem(
       'leaflowApprovedPlan',
       JSON.stringify(approvedPlan.value)
     )
 
-    console.log('Meal consumption saved:', result.data)
+    console.log(
+      isConsuming ? 'Meal marked as consumed.' : 'Meal consumption undone.'
+    )
 
   } catch (error) {
     console.error('Toggle meal consumption error:', error)
@@ -612,9 +620,10 @@ const toggleMealConsumed = async (mealIndex) => {
 
 // Navigate to Create Plan
 const goToCreatePlan = () => {
+  localStorage.removeItem('leaflowQuestionnaire')
+  localStorage.removeItem('leaflowEditingMealPlanId')
   router.push('/dashboard/planner/create')
 }
-
 onMounted(() => {
   fetchSavedMeals()
 })
@@ -1013,7 +1022,19 @@ onMounted(() => {
                 class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-primary"
               />
             </div>
-
+            <!-- Actual Cost -->
+            <div class="mb-4">
+              <label class="mb-2 block text-sm font-medium text-ink">
+                Actual Cost (Rp)
+              </label>
+              <input
+                v-model="editedMealCost"
+                type="number"
+                min="0"
+                placeholder="Example: 15000"
+                class="w-full rounded-lg border border-line px-4 py-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
             <!-- Portion -->
             <div class="mb-4">
               <label class="mb-2 block text-sm font-medium text-ink">
