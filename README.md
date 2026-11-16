@@ -111,11 +111,6 @@ Buka website melalui:
 http://localhost:5173
 ```
 
-## Tim
-
-Dikembangkan oleh Daun Leaf untuk ISCOMFEST 2026
-
-
 ## Developer
 
-Developed with 🌿 by **Leaflow Team**.
+Developed with 🌿 by **Leaflow Team**. ISCOMFEST 2026
