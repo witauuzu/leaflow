@@ -85,10 +85,11 @@ router.put('/:id/meals', authenticateUser, async (req, res) => {
 
     // Check whether this meal plan belongs to the logged-in user
     const { data: mealPlan, error: planError } = await req.supabase
-      .from('meal_plans')
-      .select('id')
-      .eq('id', mealPlanId)
-      .single()
+    .from('meal_plans')
+    .select('id')
+    .eq('id', mealPlanId)
+    .eq('user_id', req.user.id)
+    .maybeSingle()
 
     if (planError || !mealPlan) {
       return res.status(404).json({
@@ -785,7 +786,6 @@ router.get('/consumption', authenticateUser, async (req, res) => {
   }
 })
 
-
 // Unmark a planned meal as consumed
 router.delete('/meals/:mealItemId/consume', authenticateUser, async (req, res) => {
   try {
@@ -1114,7 +1114,6 @@ router.post('/water-intake', authenticateUser, async (req, res) => {
   }
 })
 
-
 // Get all meal plans for Calendar
 router.get('/calendar', authenticateUser, async (req, res) => {
   try {
@@ -1195,6 +1194,71 @@ router.get('/:id/meals', authenticateUser, async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve meals.',
+    })
+  }
+})
+
+// Global search
+router.get('/search', authenticateUser, async (req, res) => {
+  try {
+    const query = req.query.q?.trim()
+
+    if (!query || query.length < 2) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Search query must contain at least 2 characters.',
+      })
+    }
+
+    // Get user's meal plans
+    const { data: plans, error: planError } = await req.supabase
+      .from('meal_plans')
+      .select('id, start_date, end_date, status')
+      .eq('user_id', req.user.id)
+      .limit(50)
+
+    if (planError) throw planError
+
+    const planIds = (plans || []).map(plan => plan.id)
+
+    let meals = []
+
+    // Search meals only from user's meal plans
+    if (planIds.length > 0) {
+      const { data, error } = await req.supabase
+        .from('meal_items')
+        .select('id, meal_plan_id, meal_date, meal_type, name, calories, protein, image_url')
+        .in('meal_plan_id', planIds)
+        .ilike('name', `%${query}%`)
+        .limit(10)
+
+      if (error) throw error
+
+      meals = data || []
+    }
+
+    // Search meal plan dates and status
+    const matchingPlans = (plans || [])
+      .filter(plan =>
+        plan.start_date.includes(query) ||
+        plan.end_date.includes(query) ||
+        plan.status.toLowerCase().includes(query.toLowerCase())
+      )
+      .slice(0, 5)
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        meals,
+        mealPlans: matchingPlans,
+      },
+    })
+  } catch (error) {
+    console.error('Global search error:', error)
+
+    return res.status(500).json({
+      status: 'fail',
+      message: 'Failed to perform search.',
     })
   }
 })

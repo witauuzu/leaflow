@@ -122,11 +122,19 @@ const parseLocalDate = (dateString) => {
   return new Date(year, month - 1, day)
 }
 
-const selectedDate = ref(
-  approvedPlan.value?.startDate
-    ? parseLocalDate(approvedPlan.value.startDate)
-    : new Date()
-)
+const selectedDate = ref((() => {
+  if (!approvedPlan.value?.startDate) {
+    return new Date()
+  }
+
+  const startDate = parseLocalDate(approvedPlan.value.startDate)
+  const today = new Date()
+
+  startDate.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+
+  return today >= startDate ? today : startDate
+})())
 
 const formattedDate = computed(() => {
   return new Intl.DateTimeFormat('en-US', {
@@ -222,6 +230,15 @@ const getMealName = (mealType) => {
   )
 
   return meal?.name || 'Not planned yet'
+}
+
+// Get Meal Image by Type
+const getMealImage = (mealType) => {
+  const meal = selectedMeals.value.find(
+    (item) => item.type.toLowerCase() === mealType.toLowerCase()
+  )
+
+  return meal?.image_url || ''
 }
 
 // Log Different Meal Modal
@@ -656,14 +673,13 @@ onMounted(() => {
             <p class="mt-1 text-xs text-white/90">
               Create a personalized meal plan that works for you.
             </p>
-
-            <button
+            <RouterLink
               @click="goToCreatePlan"
-              class="mt-3 flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-medium text-primary transition hover:bg-accent/30"
+              class="mt-3 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-medium text-primary transition hover:bg-accent/80"
             >
               <ChefHat :size="14" />
               Create My Plan
-            </button>
+            </RouterLink>
           </div>
 
           <!-- Banner Illustration -->
@@ -712,10 +728,37 @@ onMounted(() => {
 
           <!-- Meal Cards -->
           <div class="grid grid-cols-2 gap-[15px] md:grid-cols-4">
-            <MealCard title="Breakfast" :icon="Coffee" :meal="getMealName('Breakfast')" @edit="openMealEdit"/>
-            <MealCard title="Lunch" :icon="Utensils" :meal="getMealName('Lunch')" @edit="openMealEdit"/>
-            <MealCard title="Dinner" :icon="Moon" :meal="getMealName('Dinner')" @edit="openMealEdit"/>
-            <MealCard title="Snack" :icon="Cookie" :meal="getMealName('Snacks')" @edit="openMealEdit"/>
+            <MealCard
+              title="Breakfast"
+              :icon="Coffee"
+              :meal="getMealName('Breakfast')"
+              :image-url="getMealImage('Breakfast')"
+              @edit="openMealEdit"
+            />
+
+            <MealCard
+              title="Lunch"
+              :icon="Utensils"
+              :meal="getMealName('Lunch')"
+              :image-url="getMealImage('Lunch')"
+              @edit="openMealEdit"
+            />
+
+            <MealCard
+              title="Dinner"
+              :icon="Moon"
+              :meal="getMealName('Dinner')"
+              :image-url="getMealImage('Dinner')"
+              @edit="openMealEdit"
+            />
+
+            <MealCard
+              title="Snack"
+              :icon="Cookie"
+              :meal="getMealName('Snacks')"
+              :image-url="getMealImage('Snacks')"
+              @edit="openMealEdit"
+            />
           </div>
         </section>
 

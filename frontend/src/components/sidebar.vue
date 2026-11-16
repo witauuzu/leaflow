@@ -126,7 +126,10 @@ watch(
     </div>
     <hr class="my-4 border-white/20" />
     <!-- Menu -->
-    <nav class="flex flex-col gap-2 overflow-y-auto">
+    <nav 
+    class="flex flex-col gap-2 overflow-y-auto"
+    :class="collapsed ? 'lg:items-center' : ''"
+    >
       <RouterLink
         v-for="menu in menus"
         :key="menu.name"
@@ -139,7 +142,7 @@ watch(
           isActive(menu.to)
             ? 'shadow-sm backdrop-blur-md'
             : 'border-transparent hover:bg-white/10',
-          collapsed ? 'lg:justify-center lg:px-0' : '',
+          collapsed ?'lg:h-[45px] lg:w-[45px] lg:justify-center lg:px-0' : '',
         ]"
         :style="
           isActive(menu.to)

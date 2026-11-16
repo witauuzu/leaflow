@@ -387,7 +387,7 @@ onMounted(() => {
       <div class="space-y-4">
 
         <!-- Nutrition Trends -->
-        <section class="min-h-[260px] rounded-xl bg-white p-5 shadow-sm">
+        <section class="min-h-[260px] rounded-xl bg-white p-5 border border-gray-200">
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-lg font-semibold text-[#063B00]">
@@ -406,7 +406,7 @@ onMounted(() => {
                 class="rounded-md px-3 py-1.5 text-sm font-medium transition"
                 :class="
                   selectedPeriod === period.value
-                    ? 'bg-[#66BB6A] text-white shadow-sm'
+                    ? 'bg-[#66BB6A] text-white border border-gray-200'
                     : 'text-gray-500 hover:text-[#063B00]'
                 "
               >
@@ -415,7 +415,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="mt-6 flex min-h-[150px] items-center justify-center">
+          <div class="mt-6 w-full min-w-0">
             <div class="mt-6">
               <NutritionChart
                 :period="selectedPeriod"
@@ -430,7 +430,7 @@ onMounted(() => {
           <section
             v-for="item in nutritionProgress"
             :key="item.name"
-            class="flex min-h-[230px] flex-col items-center rounded-xl bg-white p-5 shadow-sm"
+            class="flex min-h-[230px] flex-col items-center rounded-xl bg-white p-5 border border-gray-200"
           >
             <!-- Title -->
             <p class="self-start text-sm font-medium text-gray-500">
@@ -497,10 +497,10 @@ onMounted(() => {
         </div>
 
         <!-- Daily Recap -->
-        <section class="rounded-xl bg-white p-5 shadow-sm">
+        <section class="rounded-xl bg-white p-5 border border-gray-200">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-semibold text-[#063B00]">
+              <h2 class="text-lg font-semibold text-(--color-text)">
                 Daily Recap
               </h2>
               <p class="mt-1 text-sm text-gray-500">
@@ -570,7 +570,7 @@ onMounted(() => {
       <!-- Right Column -->
       <div class="space-y-4">
       <!-- Calendar -->
-      <section class="rounded-xl bg-white p-4 shadow-sm">
+      <section class="rounded-xl bg-white p-4 border border-gray-200">
 
         <!-- Calendar Header -->
         <div class="mb-4 flex items-center justify-between">
@@ -651,7 +651,7 @@ onMounted(() => {
 
 
       <!-- Food Spending -->
-      <section class="rounded-xl bg-white p-5 shadow-sm">
+      <section class="rounded-xl bg-white p-5 border border-gray-200">
         <div class="mb-5 flex items-center justify-between">
           <div>
             <h3 class="text-base font-semibold text-ink">
@@ -720,7 +720,7 @@ onMounted(() => {
       </section>
 
       <!-- Water Intake -->
-      <section class="rounded-xl bg-white p-5 shadow-sm">
+      <section class="rounded-xl bg-white p-5 border border-gray-200">
         <div class="mb-5 flex items-center justify-between">
           <div>
             <h3 class="text-base font-semibold text-ink">

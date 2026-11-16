@@ -180,7 +180,7 @@ const suggestions = [
           </p>
           <RouterLink
             to="/dashboard/planner/create"
-            class="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-semibold text-primary-deep transition hover:bg-accent/40"
+            class="mt-4 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-semibold text-primary-deep transition hover:bg-accent/80"
           >
             <CalendarPlus :size="14" />
             Plan this week

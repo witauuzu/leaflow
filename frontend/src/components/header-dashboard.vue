@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell, CheckCheck, House, LogOut, UserRound } from 'lucide-vue-next'
+import { Bell, CheckCheck, House, LogOut, UserRound, Utensils,} from 'lucide-vue-next'
 import ExploreLight from '../assets/icons/Light/Explore.svg'
 import ProfileBold from '../assets/icons/Bold/Profile.svg'
 import { nutritionSummary } from '../lib/meal-data.js'
@@ -20,12 +20,82 @@ defineProps({
 const router = useRouter()
 
 const searchQuery = ref('')
+const searchResults = ref({
+  meals: [],
+  mealPlans: [],
+})
+const searchOpen = ref(false)
+const isSearching = ref(false)
+const searchError = ref('')
+
+let searchTimeout = null
+let searchRequestId = 0
+
 const profileImage = ref('')
 const notificationsOpen = ref(false)
 const profileOpen = ref(false)
 const profileRef = ref(null)
+const searchRef = ref(null)
 const user = nutritionSummary
+const searchMeals = async (query) => {
+  clearTimeout(searchTimeout)
 
+  const requestId = ++searchRequestId
+
+  if (!query.trim() || query.trim().length < 2) {
+    searchRequestId++
+    searchOpen.value = false
+    isSearching.value = false
+    searchError.value = ''
+
+    searchResults.value = {
+      meals: [],
+      mealPlans: [],
+    }
+
+    return
+  }
+
+  searchTimeout = setTimeout(async () => {
+    isSearching.value = true
+    searchError.value = ''
+
+    try {
+      const session = JSON.parse(
+        localStorage.getItem('leaflow-session') || 'null'
+      )
+
+      const response = await fetch(
+        `http://localhost:5000/api/planner/search?q=${encodeURIComponent(query.trim())}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      )
+
+      const result = await response.json()
+      if (requestId !== searchRequestId) return
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Search failed.')
+      }
+
+      searchResults.value = result.data
+      searchOpen.value = true
+      } catch (error) {
+        if (requestId !== searchRequestId) return
+
+        console.error('Global search error:', error)
+        searchError.value = 'Unable to search. Please try again.'
+        searchOpen.value = true
+      } finally {
+        if (requestId === searchRequestId) {
+          isSearching.value = false
+        }
+      }
+  }, 350)
+}
 const notifications = ref([
   {
     id: 1,
@@ -81,11 +151,20 @@ const logout = () => {
 }
 
 const handleDocumentClick = (event) => {
-  if (!profileRef.value?.contains(event.target)) closeProfile()
+  if (!profileRef.value?.contains(event.target)) {
+    closeProfile()
+  }
+
+  if (!searchRef.value?.contains(event.target)) {
+    searchOpen.value = false
+  }
 }
 
 onMounted(() => document.addEventListener('click', handleDocumentClick))
-onBeforeUnmount(() => document.removeEventListener('click', handleDocumentClick))
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
+  clearTimeout(searchTimeout)
+})
 </script>
 
 <template>
@@ -105,7 +184,8 @@ onBeforeUnmount(() => document.removeEventListener('click', handleDocumentClick)
     <div class="flex shrink-0 items-center gap-3">
       <!-- Search Input -->
       <div
-        class="hidden h-[45px] w-[280px] items-center gap-3 rounded-[10px] bg-accent px-4 lg:flex"
+        ref="searchRef"
+        class="relative hidden h-[45px] w-[280px] items-center gap-3 rounded-[10px] bg-accent px-4 lg:flex"
       >
         <img :src="ExploreLight" alt="" class="h-[19px] w-[19px] shrink-0 icon-header" />
 
@@ -114,7 +194,94 @@ onBeforeUnmount(() => document.removeEventListener('click', handleDocumentClick)
           type="text"
           placeholder="Search meals, plans..."
           class="w-full bg-transparent text-sm text-ink outline-none"
+          @input="searchMeals(searchQuery)"
+          @focus="searchMeals(searchQuery)"
+          @keydown.esc="searchOpen = false"
         />
+        <!-- Search Results Dropdown -->
+        <Transition name="slide-up">
+          <div
+            v-if="searchOpen"
+            class="absolute left-0 top-[calc(100%+0.6rem)] z-40 w-[340px] overflow-hidden rounded-[14px] border border-line bg-white shadow-[0_28px_60px_-30px_rgba(6,59,0,.45)]"
+          >
+            <div class="border-b border-line px-4 py-3">
+              <p class="text-xs font-semibold text-ink">Search Results</p>
+              <p class="mt-0.5 text-[10px] text-muted">
+                Results for "{{ searchQuery }}"
+              </p>
+            </div>
+
+            <div v-if="isSearching" class="px-4 py-6 text-center text-xs text-muted">
+              Searching...
+            </div>
+
+            <div v-else-if="searchError" class="px-4 py-6 text-center text-xs text-danger">
+              {{ searchError }}
+            </div>
+
+            <div v-else-if="!searchResults.meals.length && !searchResults.mealPlans.length"
+              class="px-4 py-6 text-center text-xs text-muted"
+            >
+              No results found.
+            </div>
+
+            <div v-else class="max-h-[320px] overflow-y-auto">
+              <div v-if="searchResults.meals.length" class="p-2">
+                <p class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                  Meals
+                </p>
+
+                <button
+                  v-for="meal in searchResults.meals"
+                  :key="meal.id"
+                  type="button"
+                  class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-accent/60"
+                  @click="router.push('/dashboard/planner'); searchOpen = false"
+                >
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent text-primary-deep">
+                    <Utensils :size="16" />
+                  </span>
+
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-xs font-semibold text-ink">
+                      {{ meal.name }}
+                    </span>
+                    <span class="mt-0.5 block text-[10px] text-muted">
+                      {{ meal.meal_type }} · {{ meal.meal_date }}
+                    </span>
+                  </span>
+                </button>
+              </div>
+
+              <div v-if="searchResults.mealPlans.length" class="border-t border-line p-2">
+                <p class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                  Meal Plans
+                </p>
+
+                <button
+                  v-for="plan in searchResults.mealPlans"
+                  :key="plan.id"
+                  type="button"
+                  class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-accent/60"
+                  @click="router.push('/dashboard/calendar'); searchOpen = false"
+                >
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent text-primary-deep">
+                    <CalendarDays :size="16" />
+                  </span>
+
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-xs font-semibold capitalize text-ink">
+                      {{ plan.status }} meal plan
+                    </span>
+                    <span class="mt-0.5 block text-[10px] text-muted">
+                      {{ plan.start_date }} – {{ plan.end_date }}
+                    </span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </div>
 
       <!-- Notifications -->

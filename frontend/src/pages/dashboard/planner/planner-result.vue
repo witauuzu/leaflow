@@ -424,324 +424,267 @@ const tryAgainMeal = async () => {
 <template>
   <main class="min-h-screen bg-white">
     <!-- Full Page Loading -->
-<div
-  v-if="isGenerating"
-  class="flex min-h-screen flex-col items-center justify-center px-5 text-center"
->
-  <div
-    class="mb-4 size-10 animate-spin rounded-full border-4 border-[#E5F4E5] border-t-[#66BB6A]"
-  ></div>
-
-  <h2 class="font-semibold text-[#063B00]">
-    Creating Your Meal Plan
-  </h2>
-
-  <p class="mt-2 text-sm text-gray-500">
-    Please wait while we prepare meals based on your preferences.
-  </p>
-</div>
-
-<!-- Page Content -->
-<div v-else class="px-5 py-7 sm:px-8 lg:px-10">
-
-    <div class="mx-auto max-w-7xl">
-
-      <!-- Page Header -->
-      <header class="mb-8">
-
-        <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-
-          <div>
-            <h1 class="text-2xl font-semibold text-ink">
-              Your {{ duration }}-day meal plan
-            </h1>
-
-            <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
-              <CalendarDays :size="16" />
-              <span>{{ formattedDateRange }}</span>
-            </div>
-          </div>
-
-          <!-- Header Actions -->
-          <div class="flex flex-wrap gap-2">
-
-            <button
-              @click="editAnswers"
-              class="flex items-center justify-center gap-2 rounded-lg border border-(--color-primary) px-4 py-2.5 text-sm font-medium text-(--color-primary) transition hover:bg-primary/5"
-            >
-              <Pencil :size="15" />
-              Edit Answers
-            </button>
-
-            <button
-              @click="openApproveModal"
-              class="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover"
-            >
-              <Check :size="16" />
-              Approve Plan
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Plan Information -->
-        <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-
-          <div class="rounded-xl border border-gray-100 bg-white p-4">
-            <p class="text-xs text-gray-500">Duration</p>
-            <p class="mt-1 text-lg font-semibold text-ink">
-              {{ duration }} Days
-            </p>
-          </div>
-
-          <div class="rounded-xl border border-gray-100 bg-white p-4">
-            <p class="text-xs text-gray-500">Total Days</p>
-            <p class="mt-1 text-lg font-semibold text-ink">
-              {{ planDays.length }} Days
-            </p>
-          </div>
-
-          <div class="col-span-2 rounded-xl border border-gray-100 bg-white p-4 sm:col-span-1">
-            <p class="text-xs text-gray-500">Plan Status</p>
-            <p class="mt-1 text-lg font-semibold text-(--color-primary)">
-              Preview
-            </p>
-          </div>
-
-        </div>
-      </header>
-
-      <!-- Error State -->
-      <div v-if="generateError"
-        class="rounded-xl border border-red-100 bg-red-50 px-6 py-8 text-center"
-      >
-        <p class="font-medium text-red-600">
-          Unable to Generate Meal Plan
-        </p>
-
-        <p class="mt-2 text-sm text-gray-500">
-          {{ generateError }}
-        </p>
-
-        <button
-          @click="generateMealPlan"
-          class="mt-4 rounded-lg bg-[#66BB6A] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#4CAF50]"
-        >
-          Try Again
-        </button>
-      </div>
-
-      <!-- Daily Timeline -->
-      <section v-else class="relative">
-        <div
-          v-for="day in planDays"
-          :key="day.id"
-          class="relative pb-9 pl-8 sm:pl-10"
-        >
-
-          <!-- Timeline Line -->
-          <div
-            class="absolute bottom-0 left-[7px] top-2 w-px bg-primary/50"
-            :class="day.id === planDays.length ? 'hidden' : ''"
-          ></div>
-
-          <!-- Timeline Dot -->
-          <div
-            class="absolute left-0 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary ring-4 ring-white"
-          ></div>
-
-          <!-- Date Heading -->
-          <div class="mb-4 flex items-center justify-between gap-2">
-            <h2 class="text-base font-semibold text-ink">
-              {{ day.formattedDate }}
-            </h2>
-
-            <span class="shrink-0 text-xs text-gray-400">
-              Day {{ day.id }}
-            </span>
-          </div>
-
-        <!-- Responsive Meal Cards -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-        <article
-            v-for="meal in day.meals"
-            :key="meal.type"
-            @click="meal.isEmpty ? openChangeModal(meal) : openMealModal(meal)"
-            class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-            :class="meal.isEmpty ? 'cursor-pointer' : 'cursor-pointer'"
-        >
-
-            <!-- Empty Meal Card -->
-            <div
-            v-if="meal.isEmpty"
-            class="flex min-h-[180px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#B8DDBA] bg-[#F8FCF8] transition hover:bg-[#F1F8F1]"
-            >
-            <div class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#E5F4E5] text-2xl text-[#66BB6A]">
-                +
-            </div>
-
-            <p class="font-medium text-[#66BB6A]">
-                Add Meal
-            </p>
-
-            <p class="mt-1 text-xs text-gray-400">
-                Add a meal to this slot
-            </p>
-            </div>
-
-            <!-- Filled Meal Card -->
-            <template v-else>
-
-            <!-- Image Placeholder -->
-            <div class="flex h-32 items-center justify-center bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9]">
-                 <img
-                    v-if="meal.imageUrl"
-                    :src="meal.imageUrl"
-                    :alt="meal.name"
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                />
-                <div
-                    v-else
-                    class="flex h-full items-center justify-center"
-                >
-                    <Utensils :size="36" class="text-[#66BB6A]" />
-                </div>
-            </div>
-
-            <!-- Meal Information -->
-            <div class="p-4">
-
-                <p class="mb-1 text-xs font-medium text-(--color-primary)">
-                {{ meal.type }}
-                </p>
-
-                <h3 class="min-h-10 text-sm font-semibold text-ink">
-                {{ meal.name }}
-                </h3>
-
-                <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-500">
-
-                <span class="flex items-center gap-1">
-                    <Flame :size="14" />
-                    {{ meal.calories }} kcal
-                </span>
-
-                <span class="flex items-center gap-1">
-                    <Clock3 :size="14" />
-                    {{ meal.time }}
-                </span>
-
-                </div>
-            </div>
-
-            </template>
-        </article>
-        </div>
-        </div>
-      </section>
-
-      <!-- End of Plan -->
+    <div
+      v-if="isGenerating"
+      class="flex min-h-screen flex-col items-center justify-center px-5 text-center"
+    >
       <div
-        v-if="!isGenerating && !generateError"
-        class="mt-2 rounded-xl bg-[#F3F9F3] px-5 py-8 text-center"
-      >
-        <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#DDF0DD]">
-          <Check :size="23" class="text-(--color-primary)" />
-        </div>
+        class="mb-4 size-10 animate-spin rounded-full border-4 border-[#E5F4E5] border-t-[#66BB6A]"
+      />
 
-        <h3 class="mt-3 font-semibold text-ink">
-          You've reached the end of your meal plan!
-        </h3>
+      <h2 class="font-semibold text-[#063B00]">Creating Your Meal Plan</h2>
 
-        <p class="mt-1 text-sm text-gray-500">
-          Review your meals before approving your plan.
-        </p>
-      </div>
-
+      <p class="mt-2 text-sm text-gray-500">
+        Please wait while we prepare meals based on your preferences.
+      </p>
     </div>
-  </div>
 
-    <!-- Approve Confirmation Modal -->
-    <Teleport to="body">
-      <div
-        v-if="showApproveModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4"
-        @click.self="closeApproveModal"
-      >
+    <!-- Page Content -->
+    <div v-else class="px-5 py-7 sm:px-8 lg:px-10">
+      <div class="mx-auto max-w-7xl">
+        <!-- Page Header -->
+        <header class="fade-up mb-8">
+          <div
+            class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"
+          >
+            <div>
+              <h1 class="text-2xl font-semibold text-[#063B00]">
+                Your {{ duration }}-day meal plan
+              </h1>
 
-        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-
-          <div class="flex items-center justify-between">
-            <div class="flex size-12 items-center justify-center rounded-full bg-[#E8F5E9]">
-              <Check :size="24" class="text-(--color-primary)" />
+              <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <CalendarDays :size="16" />
+                <span>{{ formattedDateRange }}</span>
+              </div>
             </div>
 
-            <button
-              @click="closeApproveModal"
-              class="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
-              aria-label="Close confirmation"
-            >
-              <X :size="20" />
-            </button>
+            <!-- Header Actions -->
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="flex items-center justify-center gap-2 rounded-lg border border-[#66BB6A] px-4 py-2.5 text-sm font-medium text-[#3F9A44] transition-all duration-200 hover:bg-[#66BB6A]/10 active:scale-[0.98]"
+                @click="editAnswers"
+              >
+                <Pencil :size="15" />
+                Edit Answers
+              </button>
+
+              <button
+                type="button"
+                class="flex items-center justify-center gap-2 rounded-lg bg-[#66BB6A] px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98]"
+                @click="openApproveModal"
+              >
+                <Check :size="16" />
+                Approve Plan
+              </button>
+            </div>
           </div>
 
-          <h2 class="mt-4 text-xl font-semibold text-ink">
-            Approve Your Meal Plan?
-          </h2>
+          <!-- Plan Information -->
+          <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div class="rounded-xl border border-[#E6EFE6] bg-white p-4">
+              <p class="text-xs text-gray-500">Duration</p>
+              <p class="mt-1 text-lg font-semibold text-[#063B00]">
+                {{ duration }} Days
+              </p>
+            </div>
 
-          <p class="mt-2 text-sm leading-relaxed text-gray-500">
-            Are you sure you want to approve this meal plan?
-            Your plan will be saved and added to your Calendar.
+            <div class="rounded-xl border border-[#E6EFE6] bg-white p-4">
+              <p class="text-xs text-gray-500">Total Days</p>
+              <p class="mt-1 text-lg font-semibold text-[#063B00]">
+                {{ planDays.length }} Days
+              </p>
+            </div>
+
+            <div
+              class="col-span-2 rounded-xl border border-[#E6EFE6] bg-white p-4 sm:col-span-1"
+            >
+              <p class="text-xs text-gray-500">Plan Status</p>
+              <p class="mt-1 text-lg font-semibold text-[#3F9A44]">Preview</p>
+            </div>
+          </div>
+        </header>
+
+        <!-- Error State -->
+        <div
+          v-if="generateError"
+          class="fade-up rounded-xl border border-red-100 bg-red-50 px-6 py-8 text-center"
+        >
+          <p class="font-medium text-red-600">Unable to Generate Meal Plan</p>
+
+          <p class="mt-2 text-sm text-gray-500">
+            {{ generateError }}
           </p>
 
-          <p class="mt-3 rounded-lg bg-[#F3F9F3] p-3 text-xs text-gray-500">
-            The approval and Supabase saving process will be connected in a later step.
-          </p>
+          <button
+            type="button"
+            class="mt-4 rounded-lg bg-[#66BB6A] px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98]"
+            @click="generateMealPlan"
+          >
+            Try Again
+          </button>
+        </div>
 
-          <div class="mt-6 flex gap-3">
+        <!-- Daily Timeline -->
+        <section v-else class="relative">
+          <div
+            v-for="(day, dayIndex) in planDays"
+            :key="day.id"
+            class="fade-up relative pb-9 pl-8 sm:pl-10"
+            :style="{ animationDelay: `${Math.min(dayIndex, 6) * 60}ms` }"
+          >
+            <!-- Timeline Line -->
+            <div
+              class="absolute bottom-0 left-[7px] top-2 w-px bg-[#66BB6A]/40"
+              :class="day.id === planDays.length ? 'hidden' : ''"
+            />
 
-            <button
-              @click="closeApproveModal"
-              class="flex-1 rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
-            >
-              Cancel
-            </button>
+            <!-- Timeline Dot -->
+            <div
+              class="absolute -left-0.5 top-1 box-content size-3 rounded-full border-4 border-white bg-[#66BB6A]"
+            />
 
-            <button
-              @click="approveMealPlan"
-              class="flex-1 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-hover"
-            >
-              Got it
-            </button>
+            <!-- Date Heading -->
+            <div class="mb-4 flex items-center justify-between gap-2">
+              <h2 class="text-base font-semibold text-[#063B00]">
+                {{ day.formattedDate }}
+              </h2>
 
+              <span class="shrink-0 text-xs text-gray-400">
+                Day {{ day.id }}
+              </span>
+            </div>
+
+            <!-- Meal Cards -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <article
+                v-for="meal in day.meals"
+                :key="meal.type"
+                class="group cursor-pointer overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                :class="
+                  meal.isEmpty
+                    ? ''
+                    : 'border border-[#E6EFE6] bg-white hover:border-[#CFE5D0]'
+                "
+                @click="meal.isEmpty ? openChangeModal(meal) : openMealModal(meal)"
+              >
+                <!-- Empty Meal Card -->
+                <div
+                  v-if="meal.isEmpty"
+                  class="flex min-h-[180px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#B8DDBA] bg-[#F8FCF8] transition-colors duration-200 group-hover:bg-[#F1F8F1]"
+                >
+                  <div
+                    class="mb-3 flex size-11 items-center justify-center rounded-full bg-[#E5F4E5] text-2xl text-[#66BB6A]"
+                  >
+                    +
+                  </div>
+
+                  <p class="font-medium text-[#3F9A44]">Add Meal</p>
+
+                  <p class="mt-1 text-xs text-gray-400">
+                    Add a meal to this slot
+                  </p>
+                </div>
+
+                <!-- Filled Meal Card -->
+                <template v-else>
+                  <!-- Image -->
+                  <div
+                    class="relative flex h-32 items-center justify-center overflow-hidden bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9]"
+                  >
+                    <img
+                      v-if="meal.imageUrl"
+                      :src="meal.imageUrl"
+                      :alt="meal.name"
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <Utensils v-else :size="36" class="text-[#66BB6A]" />
+                  </div>
+
+                  <!-- Meal Information -->
+                  <div class="p-4">
+                    <p class="mb-1 text-xs font-medium text-[#3F9A44]">
+                      {{ meal.type }}
+                    </p>
+
+                    <h3
+                      class="line-clamp-2 min-h-10 text-sm font-semibold text-[#063B00]"
+                    >
+                      {{ meal.name }}
+                    </h3>
+
+                    <div
+                      class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-500"
+                    >
+                      <span class="flex items-center gap-1">
+                        <Flame :size="14" />
+                        {{ meal.calories }} kcal
+                      </span>
+
+                      <span class="flex items-center gap-1">
+                        <Clock3 :size="14" />
+                        {{ meal.time }}
+                      </span>
+                    </div>
+                  </div>
+                </template>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- End of Plan -->
+        <div
+          v-if="!isGenerating && !generateError"
+          class="fade-up mt-2 rounded-xl bg-[#F3F9F3] px-5 py-8 text-center"
+        >
+          <div
+            class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#DDF0DD]"
+          >
+            <Check :size="23" class="text-[#3F9A44]" />
           </div>
 
+          <h3 class="mt-3 font-semibold text-[#063B00]">
+            You've reached the end of your meal plan!
+          </h3>
+
+          <p class="mt-1 text-sm text-gray-500">
+            Review your meals before approving your plan.
+          </p>
         </div>
       </div>
-      <!-- Meal Detail Modal -->
+    </div>
+
+    <!-- Meal Detail Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
         <div
-        v-if="showMealModal && selectedMeal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-        @click.self="closeMealModal"
+          v-if="showMealModal && selectedMeal"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          @click.self="closeMealModal"
         >
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-
+          <div
+            class="modal-panel max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-100 bg-white p-6"
+            role="dialog"
+            aria-modal="true"
+          >
             <div class="mb-5 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-[#063B00]">
-                Meal Details
-            </h2>
+              <h2 class="text-xl font-semibold text-[#063B00]">Meal Details</h2>
 
-            <button
+              <button
+                type="button"
+                aria-label="Close"
+                class="rounded-full p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100"
                 @click="closeMealModal"
-                class="rounded-full p-2 text-gray-500 transition hover:bg-gray-100"
-            >
+              >
                 <X :size="20" />
-            </button>
+              </button>
             </div>
 
-            <div class="mb-5 flex h-40 items-center justify-center rounded-xl bg-[#F1F8F1] text-7xl">
+            <div
+              class="mb-5 flex h-40 items-center justify-center overflow-hidden rounded-xl bg-[#F1F8F1]"
+            >
               <img
                 v-if="selectedMeal.imageUrl"
                 :src="selectedMeal.imageUrl"
@@ -749,290 +692,414 @@ const tryAgainMeal = async () => {
                 class="h-full w-full object-cover"
                 loading="lazy"
               />
-              <div
-                v-else
-                class="flex h-full items-center justify-center"
-              >
-                <Utensils :size="48" class="text-[#66BB6A]" />
-              </div>
+              <Utensils v-else :size="48" class="text-[#66BB6A]" />
             </div>
 
-            <p class="mb-1 text-sm font-medium text-[#66BB6A]">
-            {{ selectedMeal.type }}
+            <p class="mb-1 text-sm font-medium text-[#3F9A44]">
+              {{ selectedMeal.type }}
             </p>
 
             <h3 class="mb-4 text-xl font-semibold text-[#063B00]">
-            {{ selectedMeal.name }}
+              {{ selectedMeal.name }}
             </h3>
 
             <div class="mb-6 grid grid-cols-3 gap-3">
-            <div class="rounded-lg bg-[#F6F9F6] p-3">
-                <p class="text-sm text-gray-500">Calories</p>
-                <p class="font-semibold text-[#063B00]">
-                {{ selectedMeal.calories }} kcal
+              <div class="rounded-lg bg-[#F6F9F6] p-3">
+                <p class="text-xs text-gray-500">Calories</p>
+                <p class="mt-1 text-sm font-semibold text-[#063B00]">
+                  {{ selectedMeal.calories }} kcal
                 </p>
+              </div>
+
+              <div class="rounded-lg bg-[#F6F9F6] p-3">
+                <p class="text-xs text-gray-500">Preparation Time</p>
+                <p class="mt-1 text-sm font-semibold text-[#063B00]">
+                  {{ selectedMeal.time }}
+                </p>
+              </div>
+
+              <div class="rounded-lg bg-[#F6F9F6] p-3">
+                <p class="text-xs text-gray-500">Estimated Cost</p>
+                <p class="mt-1 text-sm font-semibold text-[#063B00]">
+                  {{ selectedMeal.estimatedCost?.toLocaleString('id-ID') || 0 }}
+                  IDR
+                </p>
+              </div>
             </div>
 
-            <div class="rounded-lg bg-[#F6F9F6] p-3">
-                <p class="text-sm text-gray-500">Preparation Time</p>
-                <p class="font-semibold text-[#063B00]">
-                {{ selectedMeal.time }}
-                </p>
-            </div>
-            <div class="rounded-lg bg-[#F6F9F6] p-3">
-                <p class="text-sm text-gray-500">Estimated Cost</p>
-                <p class="font-semibold text-[#063B00]">
-                    {{ selectedMeal.estimatedCost?.toLocaleString('id-ID') || 0 }}
-                    IDR
-                </p>
-            </div>
-            </div>
-
-            <div class="flex gap-3">
-            <button
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                class="flex-1 rounded-lg border border-red-200 py-3 font-medium text-red-500 transition-colors duration-200 hover:bg-red-50"
                 @click="deleteMeal"
-                class="flex-1 rounded-lg border border-red-200 py-3 font-medium text-red-500 transition hover:bg-red-50"
-            >
+              >
                 Delete Meal
-            </button>
+              </button>
 
-            <button
-                @click="closeMealModal"
-                class="flex-1 rounded-lg border border-gray-300 py-3 font-medium text-gray-600 transition hover:bg-gray-50"
-            >
-                Close
-            </button>
-
-            <button
-            @click="openChangeModal(selectedMeal)"
-            class="flex-1 rounded-lg bg-[#66BB6A] py-3 font-medium text-white transition hover:bg-[#4CAF50]"
-            >
+              <button
+                type="button"
+                class="flex-1 rounded-lg bg-[#66BB6A] py-3 font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98]"
+                @click="openChangeModal(selectedMeal)"
+              >
                 Change Meal
-            </button>
+              </button>
             </div>
-
+          </div>
         </div>
-        </div>
+      </Transition>
     </Teleport>
 
     <!-- Change / Add Meal Modal -->
     <Teleport to="body">
-    <div
-        v-if="showChangeModal"
-        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
-        @click.self="closeChangeModal"
-    >
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+      <Transition name="modal">
+        <div
+          v-if="showChangeModal"
+          class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          @click.self="closeChangeModal"
+        >
+          <div
+            class="modal-panel w-full max-w-lg rounded-2xl border border-gray-100 bg-white p-6"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="mb-5 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-[#063B00]">
+                {{ selectedMeal?.isEmpty ? 'Add a Meal' : 'Change Your Meal' }}
+              </h2>
 
-        <div class="mb-5 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-[#063B00]">
-            {{ selectedMeal?.isEmpty ? 'Add a Meal' : 'Change Your Meal' }}
-            </h2>
+              <button
+                type="button"
+                aria-label="Close"
+                class="rounded-full p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100"
+                @click="closeChangeModal"
+              >
+                <X :size="20" />
+              </button>
+            </div>
 
-            <button
-            @click="closeChangeModal"
-            class="rounded-full p-2 text-gray-500 transition hover:bg-gray-100"
-            >
-            <X :size="20" />
-            </button>
-        </div>
-
-        <p class="mb-4 text-sm text-gray-500">
-            Tell us what kind of meal you would like. You can describe your
-            preferred ingredients, taste, or cooking style.
-        </p>
-
-        <div class="mb-4 rounded-lg bg-[#F1F8F1] p-3">
-            <p class="text-xs text-gray-500">Meal Slot</p>
-            <p class="font-semibold text-[#063B00]">
-            {{ selectedMeal?.type }}
+            <p class="mb-4 text-sm text-gray-500">
+              Tell us what kind of meal you would like. You can describe your
+              preferred ingredients, taste, or cooking style.
             </p>
-        </div>
 
-        <label class="mb-2 block text-sm font-medium text-[#063B00]">
-            Your Meal Request
-        </label>
+            <div class="mb-4 rounded-lg bg-[#F1F8F1] p-3">
+              <p class="text-xs text-gray-500">Meal Slot</p>
+              <p class="mt-1 font-semibold text-[#063B00]">
+                {{ selectedMeal?.type }}
+              </p>
+            </div>
 
-        <textarea
-            v-model="changePrompt"
-            rows="4"
-            placeholder="Example: I want a healthy high-protein meal that is easy to prepare..."
-            class="w-full resize-none rounded-lg border border-gray-200 p-3 text-sm outline-none transition focus:border-[#66BB6A] focus:ring-2 focus:ring-[#66BB6A]/20"
-        ></textarea>
-
-        <div class="mt-5 flex gap-3">
-            <button
-            @click="closeChangeModal"
-            class="flex-1 rounded-lg border border-gray-300 py-3 font-medium text-gray-600 transition hover:bg-gray-50"
+            <label
+              for="meal-request"
+              class="mb-2 block text-sm font-medium text-[#063B00]"
             >
-            Cancel
-            </button>
+              Your Meal Request
+            </label>
 
-            <button
-            @click="saveMealPrompt"
-            :disabled="!changePrompt.trim()"
-            class="flex-1 rounded-lg bg-[#66BB6A] py-3 font-medium text-white transition hover:bg-[#4CAF50] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-            Save Request
-            </button>
-        </div>
+            <textarea
+              id="meal-request"
+              v-model="changePrompt"
+              rows="4"
+              placeholder="Example: I want a healthy high-protein meal that is easy to prepare..."
+              class="w-full resize-none rounded-lg border border-gray-200 p-3 text-sm outline-none transition-colors duration-200 focus:border-[#66BB6A]"
+            ></textarea>
 
+            <div class="mt-5 flex gap-3">
+              <button
+                type="button"
+                class="flex-1 rounded-lg border border-gray-300 py-3 font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50"
+                @click="closeChangeModal"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                :disabled="!changePrompt.trim()"
+                class="flex-1 rounded-lg bg-[#66BB6A] py-3 font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
+                @click="saveMealPrompt"
+              >
+                Save Request
+              </button>
+            </div>
+          </div>
         </div>
-    </div>
+      </Transition>
     </Teleport>
 
     <!-- Meal Preview Modal -->
     <Teleport to="body">
-    <div
-        v-if="showPreviewModal && previewMeal"
-        class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
-        @click.self="cancelPreviewMeal"
-    >
-        <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+      <Transition name="modal">
+        <div
+          v-if="showPreviewModal && previewMeal"
+          class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
+          @click.self="cancelPreviewMeal"
+        >
+          <div
+            class="modal-panel max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gray-100 bg-white p-6"
+            role="dialog"
+            aria-modal="true"
+          >
+            <!-- Header -->
+            <div class="mb-5 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-[#3F9A44]">Meal Preview</p>
+                <h2 class="text-xl font-semibold text-[#063B00]">
+                  Review Your New Meal
+                </h2>
+              </div>
 
-        <!-- Header -->
-        <div class="mb-5 flex items-center justify-between">
-            <div>
-            <p class="text-sm font-medium text-[#66BB6A]">
-                Meal Preview
-            </p>
-
-            <h2 class="text-xl font-semibold text-[#063B00]">
-                Review Your New Meal
-            </h2>
+              <button
+                type="button"
+                aria-label="Close"
+                class="rounded-full p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100"
+                @click="cancelPreviewMeal"
+              >
+                <X :size="20" />
+              </button>
             </div>
 
-            <button
-            @click="cancelPreviewMeal"
-            class="rounded-full p-2 text-gray-500 transition hover:bg-gray-100"
+            <!-- Image -->
+            <div
+              class="mb-5 flex h-48 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9]"
             >
-            <X :size="20" />
-            </button>
-        </div>
+              <img
+                v-if="previewMeal.imageUrl"
+                :src="previewMeal.imageUrl"
+                :alt="previewMeal.name"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <Utensils v-else :size="48" class="text-[#66BB6A]" />
+            </div>
 
-        <!-- Image Placeholder -->
-        <div class="mb-5 flex h-48 items-center justify-center rounded-xl bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9]">
-          <img
-            v-if="previewMeal.imageUrl"
-            :src="previewMeal.imageUrl"
-            :alt="previewMeal.name"
-            class="h-full w-full object-cover"
-            loading="lazy"
-          />
+            <!-- Meal Information -->
+            <div class="mb-5">
+              <p class="mb-1 text-sm font-medium text-[#3F9A44]">
+                {{ previewMeal.type }}
+              </p>
 
-          <div
-            v-else
-            class="flex h-full items-center justify-center"
-          >
-            <Utensils :size="48" class="text-[#66BB6A]" />
+              <h3 class="text-2xl font-semibold text-[#063B00]">
+                {{ previewMeal.name }}
+              </h3>
+
+              <div class="mt-4 flex flex-wrap gap-3">
+                <div
+                  class="flex items-center gap-2 rounded-lg bg-[#F1F8F1] px-4 py-3"
+                >
+                  <Flame :size="18" class="text-[#66BB6A]" />
+                  <div>
+                    <p class="text-xs text-gray-500">Calories</p>
+                    <p class="text-sm font-semibold text-[#063B00]">
+                      {{ previewMeal.calories }} kcal
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  class="flex items-center gap-2 rounded-lg bg-[#F1F8F1] px-4 py-3"
+                >
+                  <Clock3 :size="18" class="text-[#66BB6A]" />
+                  <div>
+                    <p class="text-xs text-gray-500">Preparation Time</p>
+                    <p class="text-sm font-semibold text-[#063B00]">
+                      {{ previewMeal.time }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ingredients -->
+            <div class="mb-5">
+              <h4 class="mb-3 font-semibold text-[#063B00]">Ingredients</h4>
+
+              <ul class="space-y-2">
+                <li
+                  v-for="(ingredient, index) in previewMeal.ingredients"
+                  :key="index"
+                  class="flex items-start gap-2 text-sm text-gray-600"
+                >
+                  <Check :size="16" class="mt-0.5 shrink-0 text-[#66BB6A]" />
+                  {{ ingredient }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Cooking Instructions -->
+            <div class="mb-6">
+              <h4 class="mb-3 font-semibold text-[#063B00]">
+                Cooking Instructions
+              </h4>
+
+              <ol class="space-y-3">
+                <li
+                  v-for="(instruction, index) in previewMeal.instructions"
+                  :key="index"
+                  class="flex items-start gap-3 text-sm text-gray-600"
+                >
+                  <span
+                    class="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#E5F4E5] text-xs font-semibold text-[#3F9A44]"
+                  >
+                    {{ index + 1 }}
+                  </span>
+
+                  {{ instruction }}
+                </li>
+              </ol>
+            </div>
+
+            <!-- Actions -->
+            <div
+              class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-between"
+            >
+              <button
+                type="button"
+                class="rounded-lg border border-[#66BB6A] px-5 py-3 font-medium text-[#3F9A44] transition-colors duration-200 hover:bg-[#F1F8F1]"
+                @click="tryAgainMeal"
+              >
+                Try Again
+              </button>
+
+              <div class="flex gap-3">
+                <button
+                  type="button"
+                  class="flex-1 rounded-lg border border-gray-300 px-5 py-3 font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50"
+                  @click="cancelPreviewMeal"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  class="flex-1 rounded-lg bg-[#66BB6A] px-5 py-3 font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98]"
+                  @click="acceptPreviewMeal"
+                >
+                  Accept Meal
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Meal Information -->
-        <div class="mb-5">
-            <p class="mb-1 text-sm font-medium text-[#66BB6A]">
-            {{ previewMeal.type }}
-            </p>
-
-            <h3 class="text-2xl font-semibold text-[#063B00]">
-            {{ previewMeal.name }}
-            </h3>
-
-            <div class="mt-4 flex flex-wrap gap-3">
-
-            <div class="flex items-center gap-2 rounded-lg bg-[#F1F8F1] px-4 py-3">
-                <Flame :size="18" class="text-[#66BB6A]" />
-                <div>
-                <p class="text-xs text-gray-500">Calories</p>
-                <p class="text-sm font-semibold text-[#063B00]">
-                    {{ previewMeal.calories }} kcal
-                </p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2 rounded-lg bg-[#F1F8F1] px-4 py-3">
-                <Clock3 :size="18" class="text-[#66BB6A]" />
-                <div>
-                <p class="text-xs text-gray-500">Preparation Time</p>
-                <p class="text-sm font-semibold text-[#063B00]">
-                    {{ previewMeal.time }}
-                </p>
-                </div>
-            </div>
-
-            </div>
-        </div>
-
-        <!-- Ingredients -->
-        <div class="mb-5">
-            <h4 class="mb-3 font-semibold text-[#063B00]">
-            Ingredients
-            </h4>
-
-            <ul class="space-y-2">
-            <li
-                v-for="(ingredient, index) in previewMeal.ingredients"
-                :key="index"
-                class="flex items-start gap-2 text-sm text-gray-600"
-            >
-                <Check :size="16" class="mt-0.5 shrink-0 text-[#66BB6A]" />
-                {{ ingredient }}
-            </li>
-            </ul>
-        </div>
-
-        <!-- Cooking Instructions -->
-        <div class="mb-6">
-            <h4 class="mb-3 font-semibold text-[#063B00]">
-            Cooking Instructions
-            </h4>
-
-            <ol class="space-y-3">
-            <li
-                v-for="(instruction, index) in previewMeal.instructions"
-                :key="index"
-                class="flex items-start gap-3 text-sm text-gray-600"
-            >
-                <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#E5F4E5] text-xs font-semibold text-[#66BB6A]">
-                {{ index + 1 }}
-                </span>
-
-                {{ instruction }}
-            </li>
-            </ol>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-between">
-
-            <button
-            @click="tryAgainMeal"
-            class="rounded-lg border border-[#66BB6A] px-5 py-3 font-medium text-[#66BB6A] transition hover:bg-[#F1F8F1]"
-            >
-            Try Again
-            </button>
-
-            <div class="flex gap-3">
-            <button
-                @click="cancelPreviewMeal"
-                class="flex-1 rounded-lg border border-gray-300 px-5 py-3 font-medium text-gray-600 transition hover:bg-gray-50"
-            >
-                Cancel
-            </button>
-
-            <button
-                @click="acceptPreviewMeal"
-                class="flex-1 rounded-lg bg-[#66BB6A] px-5 py-3 font-medium text-white transition hover:bg-[#4CAF50]"
-            >
-                Accept Meal
-            </button>
-            </div>
-
-        </div>
-
-        </div>
-    </div>
+      </Transition>
     </Teleport>
 
+    <!-- Approve Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showApproveModal"
+          class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4"
+          @click.self="closeApproveModal"
+        >
+          <div
+            class="modal-panel w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex items-center justify-between">
+              <div
+                class="flex size-12 items-center justify-center rounded-full bg-[#E8F5E9]"
+              >
+                <Check :size="24" class="text-[#3F9A44]" />
+              </div>
+
+              <button
+                type="button"
+                class="rounded-full p-2 text-gray-400 transition-colors duration-200 hover:bg-gray-100"
+                aria-label="Close confirmation"
+                @click="closeApproveModal"
+              >
+                <X :size="20" />
+              </button>
+            </div>
+
+            <h2 class="mt-4 text-xl font-semibold text-[#063B00]">
+              Approve Your Meal Plan?
+            </h2>
+
+            <p class="mt-2 text-sm leading-relaxed text-gray-500">
+              Are you sure you want to approve this meal plan?
+              Your plan will be saved and added to your Calendar.
+            </p>
+
+            <p class="mt-3 rounded-lg bg-[#F3F9F3] p-3 text-xs text-gray-500">
+              The approval and Supabase saving process will be connected in a later step.
+            </p>
+
+            <div class="mt-6 flex gap-3">
+              <button
+                type="button"
+                class="flex-1 rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50"
+                @click="closeApproveModal"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                class="flex-1 rounded-lg bg-[#66BB6A] px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-[#4CAF50] active:scale-[0.98]"
+                @click="approveMealPlan"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </main>
 </template>
+
+<style scoped>
+/* Section / kartu muncul pelan dari bawah */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
+
+/* Modal: overlay fade, panel naik sedikit */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-active .modal-panel,
+.modal-leave-active .modal-panel {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-panel,
+.modal-leave-to .modal-panel {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up {
+    animation: none;
+  }
+
+  .modal-enter-active,
+  .modal-leave-active,
+  .modal-enter-active .modal-panel,
+  .modal-leave-active .modal-panel {
+    transition: none;
+  }
+}
+</style>

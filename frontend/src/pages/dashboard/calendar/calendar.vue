@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted  } from 'vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Utensils } from 'lucide-vue-next'
 import HeaderDashboard from '../../../components/header-dashboard.vue'
 
 // Selected date
@@ -203,34 +203,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-7">
+  <div class="p-5 sm:p-7">
     <HeaderDashboard
       title="Your Meal Schedule"
       description="View your upcoming breakfasts, lunches, and dinners at a glance."
     />
 
-    <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-
+    <div class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1.15fr_0.85fr]">
       <!-- Calendar Panel -->
-      <section class="min-h-[520px] rounded-xl bg-white p-5 shadow-sm">
-
+      <section
+        class="fade-up min-h-[520px] rounded-2xl border border-[#E6EFE6] bg-white p-5"
+      >
         <!-- Calendar Header -->
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-[#263D2A]">
+          <h2 class="text-lg font-semibold text-[#063B00]">
             {{ monthLabel }}
           </h2>
 
           <div class="flex items-center gap-2">
             <button
+              type="button"
+              aria-label="Previous month"
+              class="flex size-9 items-center justify-center rounded-lg border border-[#E6EFE6] text-[#263D2A] transition-all duration-200 hover:bg-[#EAF6EA] active:scale-95"
               @click="previousMonth"
-              class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-[#263D2A] transition hover:bg-gray-100"
             >
               <ChevronLeft :size="18" />
             </button>
 
             <button
+              type="button"
+              aria-label="Next month"
+              class="flex size-9 items-center justify-center rounded-lg border border-[#E6EFE6] text-[#263D2A] transition-all duration-200 hover:bg-[#EAF6EA] active:scale-95"
               @click="nextMonth"
-              class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-[#263D2A] transition hover:bg-gray-100"
             >
               <ChevronRight :size="18" />
             </button>
@@ -238,100 +242,123 @@ onMounted(() => {
         </div>
 
         <!-- Weekdays -->
-        <div class="mb-3 grid grid-cols-7 gap-2">
+        <div class="mb-2 grid grid-cols-7 gap-1.5 sm:gap-2">
           <div
             v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
             :key="day"
-            class="py-2 text-center text-xs font-semibold text-gray-400"
+            class="py-2 text-center text-[11px] font-semibold text-gray-400 sm:text-xs"
           >
             {{ day }}
           </div>
         </div>
 
-        <!-- Calendar Days -->
-        <div class="grid grid-cols-7 gap-2">
-          <div
-            v-for="day in calendarDays"
-            :key="day.key"
-            class="flex aspect-square items-center justify-center"
-          >
-          <button
-            v-if="day.date"
-            @click="selectDate(day.date)"
-            class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-lg text-sm transition"
-            :class="
-              isSelectedDate(day.date)
-                ? 'bg-[#66BB6A] font-semibold text-white'
-                : 'text-[#263D2A] hover:bg-[#E8F4E8]'
-            "
-          >
-            <span>{{ day.day }}</span>
+        <!-- Calendar Days (animasi singkat setiap ganti bulan) -->
+        <div
+          :key="monthLabel"
+          class="fade-in grid grid-cols-7 gap-1.5 sm:gap-2"
+        >
+          <div v-for="day in calendarDays" :key="day.key" class="aspect-square">
+            <button
+              v-if="day.date"
+              type="button"
+              class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-xl border text-sm transition-all duration-200 active:scale-95"
+              :class="
+                isSelectedDate(day.date)
+                  ? 'border-[#66BB6A] bg-[#66BB6A] font-semibold text-white'
+                  : formatDateKey(day.date) === formatDateKey(new Date())
+                    ? 'border-[#66BB6A]/60 text-[#263D2A] hover:bg-[#EAF6EA]'
+                    : 'border-transparent text-[#263D2A] hover:bg-[#EAF6EA]'
+              "
+              @click="selectDate(day.date)"
+            >
+              <span>{{ day.day }}</span>
 
-            <span
-              v-if="hasMealPlan(day.date)"
-              class="h-1.5 w-1.5 rounded-full"
-              :class="isSelectedDate(day.date) ? 'bg-white' : 'bg-[#66BB6A]'"
-            ></span>
-
-            <span v-else class="h-1.5 w-1.5"></span>
-          </button>
+              <span
+                v-if="hasMealPlan(day.date)"
+                class="size-1.5 rounded-full"
+                :class="isSelectedDate(day.date) ? 'bg-white' : 'bg-[#66BB6A]'"
+              />
+              <span v-else class="size-1.5" />
+            </button>
           </div>
         </div>
 
+        <!-- Legend -->
+        <div
+          class="mt-5 flex items-center gap-4 border-t border-[#EEF3EE] pt-4 text-xs text-gray-400"
+        >
+          <span class="flex items-center gap-1.5">
+            <span class="size-2 rounded-full bg-[#66BB6A]" />
+            Has meal plan
+          </span>
+
+          <span class="flex items-center gap-1.5">
+            <span class="size-2.5 rounded border border-[#66BB6A]/60" />
+            Today
+          </span>
+        </div>
       </section>
 
-
       <!-- Meal Schedule Panel -->
-      <section class="min-h-[520px] rounded-xl bg-[#E8F4E8] p-5">
+      <section
+        class="fade-up min-h-[520px] rounded-2xl border border-[#E6EFE6] bg-[#F3F9F3] p-5"
+        style="animation-delay: 80ms"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold text-[#063B00]">Meal Schedule</h2>
 
-        <h2 class="text-lg font-semibold text-[#263D2A]">
-          Meal Schedule
-        </h2>
+            <p class="mt-1 text-sm text-gray-500">
+              {{ selectedDateLabel }}
+            </p>
+          </div>
 
-        <p class="mt-1 text-sm text-gray-500">
-          {{ selectedDateLabel }}
-        </p>
+          <span
+            v-if="!isLoadingCalendar && selectedDayMeals.length"
+            class="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#3F9A44]"
+          >
+            {{ selectedDayMeals.length }}
+            {{ selectedDayMeals.length === 1 ? 'meal' : 'meals' }}
+          </span>
+        </div>
 
         <!-- Loading -->
-        <div
-          v-if="isLoadingCalendar"
-          class="mt-6 flex min-h-[350px] items-center justify-center"
-        >
-          <p class="text-sm text-gray-500">
-            Loading meal schedule...
-          </p>
+        <div v-if="isLoadingCalendar" class="mt-6 animate-pulse space-y-3">
+          <div class="h-20 rounded-xl bg-white" />
+          <div class="h-20 rounded-xl bg-white" />
+          <div class="h-20 rounded-xl bg-white" />
         </div>
 
         <!-- Empty State -->
         <div
           v-else-if="selectedDayMeals.length === 0"
-          class="mt-6 flex min-h-[350px] flex-col items-center justify-center text-center"
+          :key="`empty-${selectedDateLabel}`"
+          class="fade-in mt-6 flex min-h-[350px] flex-col items-center justify-center text-center"
         >
-          <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white">
+          <div
+            class="mb-3 flex size-16 items-center justify-center rounded-full bg-white"
+          >
             <Utensils :size="28" class="text-[#66BB6A]" />
           </div>
 
-          <h3 class="font-semibold text-[#263D2A]">
-            No Meal Plan Yet
-          </h3>
+          <h3 class="font-semibold text-[#063B00]">No Meal Plan Yet</h3>
 
           <p class="mt-1 max-w-[230px] text-sm text-gray-500">
             There are no meals scheduled for this date.
           </p>
         </div>
 
-        <!-- Meal List -->
-        <div v-else class="mt-6 space-y-3">
-
+        <!-- Meal List (animasi ulang setiap ganti tanggal) -->
+        <div v-else :key="selectedDateLabel" class="mt-6 space-y-3">
           <article
-            v-for="meal in selectedDayMeals"
+            v-for="(meal, index) in selectedDayMeals"
             :key="meal.id"
-            class="rounded-xl bg-white p-4 shadow-sm"
+            class="fade-up rounded-xl border border-[#E6EFE6] bg-white p-4 transition-colors duration-200 hover:border-[#CFE5D0]"
+            :style="{ animationDelay: `${index * 60}ms` }"
           >
             <div class="flex items-start justify-between gap-3">
-
-              <div>
-                <p class="text-xs font-medium text-[#66BB6A]">
+              <div class="min-w-0">
+                <p class="text-xs font-medium capitalize text-[#3F9A44]">
                   {{ meal.meal_type }}
                 </p>
 
@@ -340,19 +367,18 @@ onMounted(() => {
                 </h3>
               </div>
 
-              <div class="rounded-lg bg-[#E8F4E8] p-2">
+              <div
+                class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#EAF6EA]"
+              >
                 <Utensils :size="18" class="text-[#66BB6A]" />
               </div>
-
             </div>
 
             <div
               v-if="meal.calories != null"
-              class="mt-3 border-t border-gray-100 pt-3"
+              class="mt-3 border-t border-[#EEF3EE] pt-3"
             >
-              <p class="text-xs text-gray-500">
-                {{ meal.calories }} kcal
-              </p>
+              <p class="text-xs text-gray-500">{{ meal.calories }} kcal</p>
             </div>
           </article>
         </div>
@@ -360,3 +386,40 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up,
+  .fade-in {
+    animation: none;
+  }
+}
+</style>

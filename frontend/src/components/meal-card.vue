@@ -13,6 +13,10 @@ defineProps({
     type: String,
     default: 'Not planned yet',
   },
+  imageUrl: {
+    type: String,
+    default: '',
+  },
 })
 
 const emit = defineEmits(['edit'])
@@ -26,9 +30,17 @@ const emit = defineEmits(['edit'])
   >
     <!-- Meal Image / Icon -->
     <div
-      class="flex h-[110px] w-full items-center justify-center rounded-lg bg-accent/40"
+      class="flex h-[110px] w-full items-center justify-center overflow-hidden rounded-lg bg-accent/40"
     >
+      <img
+        v-if="imageUrl"
+        :src="imageUrl"
+        :alt="meal"
+        class="h-full w-full object-cover"
+      />
+
       <component
+        v-else
         :is="icon"
         :size="38"
         :stroke-width="1"
