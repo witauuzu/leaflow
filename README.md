@@ -2,6 +2,8 @@
 
 Leaflow adalah website eksplorasi dan perencana makan serta pelacak riwayat nutrisi. Website ini membantu pengguna memperkirakan kebutuhan kalori, protein, karbohidrat, dan lemak harian, menyusun rencana makan, lalu memantau asupan nutrisinya setiap hari.
 
+https://leaflow-iscomfest.vercel.app/
+
 ## Fitur Utama
 
 - **Dashboard**: ringkasan aktivitas perencanaan makanan, informasi nutrisi, dan akses cepat ke berbagai fitur utama.
