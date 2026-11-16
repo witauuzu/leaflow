@@ -673,13 +673,13 @@ onMounted(() => {
             <p class="mt-1 text-xs text-white/90">
               Create a personalized meal plan that works for you.
             </p>
-            <RouterLink
+            <button
               @click="goToCreatePlan"
               class="mt-3 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-medium text-primary transition hover:bg-accent/80"
             >
               <ChefHat :size="14" />
               Create My Plan
-            </RouterLink>
+            </button>
           </div>
 
           <!-- Banner Illustration -->
