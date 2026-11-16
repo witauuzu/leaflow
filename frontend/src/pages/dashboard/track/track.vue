@@ -42,7 +42,7 @@ const fetchNutritionTargets = async () => {
     )
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/${savedPlan.id}`,
+      `https://leaflow-backend.vercel.app/api/planner/${savedPlan.id}`,
       {
         headers: {
           Authorization: `Bearer ${session?.access_token}`,
@@ -109,7 +109,7 @@ const fetchFoodSpending = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/food-spending?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/food-spending?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -229,7 +229,7 @@ const fetchWaterIntake = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/water-intake?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/water-intake?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -278,7 +278,7 @@ const fetchDailyRecap = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/nutrition-trends?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/nutrition-trends?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -293,7 +293,7 @@ const fetchDailyRecap = async () => {
     }
 
     const mealsResponse = await fetch(
-      `http://localhost:5000/api/planner/consumption?mealPlanId=${encodeURIComponent(JSON.parse(localStorage.getItem('leaflowMealPlan') || 'null')?.id || '')}&mealDate=${formatDateKey(selectedDate.value)}`,
+      `https://leaflow-backend.vercel.app/api/planner/consumption?mealPlanId=${encodeURIComponent(JSON.parse(localStorage.getItem('leaflowMealPlan') || 'null')?.id || '')}&mealDate=${formatDateKey(selectedDate.value)}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,

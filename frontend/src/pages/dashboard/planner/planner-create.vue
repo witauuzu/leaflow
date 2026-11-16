@@ -63,7 +63,7 @@ const generateNutritionTargets = async () => {
     }
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/nutrition-targets',
+      'https://leaflow-backend.vercel.app/api/planner/nutrition-targets',
       {
         method: 'POST',
         headers: {
@@ -476,8 +476,8 @@ const nextStep = async () => {
     )
 
     const endpoint = editingId
-      ? `http://localhost:5000/api/planner/${editingId}`
-      : 'http://localhost:5000/api/planner'
+      ? `https://leaflow-backend.vercel.app/api/planner/${editingId}`
+      : 'https://leaflow-backend.vercel.app/api/planner'
 
     const response = await fetch(endpoint, {
       method: editingId ? 'PATCH' : 'POST',

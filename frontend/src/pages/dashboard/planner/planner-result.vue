@@ -54,7 +54,7 @@ const generateMealPlan = async () => {
     }
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/generate',
+      'https://leaflow-backend.vercel.app/api/planner/generate',
       {
         method: 'POST',
         headers: {
@@ -210,7 +210,7 @@ const approveMealPlan = async () => {
 
     // Save meals to Supabase
     const response = await fetch(
-      `http://localhost:5000/api/planner/${savedMealPlan.id}/meals`,
+      `https://leaflow-backend.vercel.app/api/planner/${savedMealPlan.id}/meals`,
       {
         method: 'PUT',
         headers: {
@@ -290,7 +290,7 @@ const saveMealPrompt = async () => {
       JSON.parse(localStorage.getItem('leaflowQuestionnaire') || '{}')
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/generate',
+      'https://leaflow-backend.vercel.app/api/planner/generate',
       {
         method: 'POST',
         headers: {
@@ -374,7 +374,7 @@ const tryAgainMeal = async () => {
       JSON.parse(localStorage.getItem('leaflowQuestionnaire') || '{}')
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/generate',
+      'https://leaflow-backend.vercel.app/api/planner/generate',
       {
         method: 'POST',
         headers: {

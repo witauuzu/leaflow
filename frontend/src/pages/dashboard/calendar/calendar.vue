@@ -122,7 +122,7 @@ const fetchCalendarPlans = async () => {
     }
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/calendar',
+      'https://leaflow-backend.vercel.app/api/planner/calendar',
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,

@@ -53,7 +53,7 @@ const fetchNutritionData = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/nutrition-trends?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/nutrition-trends?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,

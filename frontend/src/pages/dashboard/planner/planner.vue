@@ -40,7 +40,7 @@ const fetchSavedMeals = async () => {
     }
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/${savedMealPlanId.value}/meals`,
+      `https://leaflow-backend.vercel.app/api/planner/${savedMealPlanId.value}/meals`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -189,7 +189,7 @@ const fetchConsumptionLogs = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/consumption?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/consumption?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -294,7 +294,7 @@ const saveMealEdit = async () => {
 
     // Step 1: Estimate nutrition using Gemini
     const estimateResponse = await fetch(
-      'http://localhost:5000/api/planner/estimate-nutrition',
+      'https://leaflow-backend.vercel.app/api/planner/estimate-nutrition',
       {
         method: 'POST',
         headers: {
@@ -338,7 +338,7 @@ const saveMealEdit = async () => {
 
       // Step 3: Save actual consumed meal
       const saveResponse = await fetch(
-        'http://localhost:5000/api/planner/consumption',
+        'https://leaflow-backend.vercel.app/api/planner/consumption',
         {
           method: 'POST',
           headers: {
@@ -490,7 +490,7 @@ const fetchWaterIntake = async () => {
     })
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/water-intake?${params}`,
+      `https://leaflow-backend.vercel.app/api/planner/water-intake?${params}`,
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -529,7 +529,7 @@ const saveWaterIntake = async (amount) => {
     }
 
     const response = await fetch(
-      'http://localhost:5000/api/planner/water-intake',
+      'https://leaflow-backend.vercel.app/api/planner/water-intake',
       {
         method: 'POST',
         headers: {
@@ -602,7 +602,7 @@ const toggleMealConsumed = async (mealIndex) => {
     const isConsuming = !meal.isConsumed
 
     const response = await fetch(
-      `http://localhost:5000/api/planner/meals/${meal.id}/consume`,
+      `https://leaflow-backend.vercel.app/api/planner/meals/${meal.id}/consume`,
       {
         method: isConsuming ? 'POST' : 'DELETE',
         headers: {

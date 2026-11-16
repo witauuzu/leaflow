@@ -63,7 +63,7 @@ const generate = async () => {
 
   try {
     const response = await fetch(
-      'http://localhost:5000/api/planner/trial-generate',
+      'https://leaflow-backend.vercel.app/api/planner/trial-generate',
       {
         method: 'POST',
         headers: {

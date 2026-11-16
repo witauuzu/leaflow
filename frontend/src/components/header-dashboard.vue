@@ -66,7 +66,7 @@ const searchMeals = async (query) => {
       )
 
       const response = await fetch(
-        `http://localhost:5000/api/planner/search?q=${encodeURIComponent(query.trim())}`,
+        `https://leaflow-backend.vercel.app/api/planner/search?q=${encodeURIComponent(query.trim())}`,
         {
           headers: {
             Authorization: `Bearer ${session?.access_token}`,
