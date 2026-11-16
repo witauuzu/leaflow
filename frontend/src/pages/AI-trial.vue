@@ -3,7 +3,7 @@ import { computed, reactive, ref } from "vue";
 import { ArrowRight, Bot, Check, ChefHat, Clock, Flame, HeartPulse, Leaf, ListChecks, RefreshCw, Utensils, Wallet } from "lucide-vue-next";
 import AnimatedNumber from "../components/animated-number.vue";
 import FoodVisual from "../components/food-visual.vue";
-import { formatRupiah, mealCatalog } from "../lib/meal-data.js";
+import { formatRupiah } from "../lib/meal-data.js";
 
 const goals = ["Balanced nutrition", "Build muscle", "Lose weight", "Save money", "Eat more vegetables"];
 const diets = ["No restrictions", "Vegetarian", "High protein", "Budget friendly"];
@@ -20,66 +20,89 @@ const form = reactive({
 
 const generated = ref(false);
 const planVersion = ref(0);
+const isGenerating = ref(false);
+const errorMessage = ref('');
+const aiMeals = ref([]);
 
 const toggleMeal = (meal) => {
   form.meals = form.meals.includes(meal) ? form.meals.filter((item) => item !== meal) : [...form.meals, meal];
 };
 
-const matchesDiet = (meal) => {
-  if (form.diet === "Vegetarian") return meal.tags.includes("Vegetarian");
-  if (form.diet === "High protein") return meal.protein >= 20;
-  if (form.diet === "Budget friendly") return meal.price <= 25000;
-  return true;
-};
-
-const matchesTime = (meal) => {
-  if (form.cookingTime === "15 minutes") return meal.time <= 15;
-  if (form.cookingTime === "30 minutes") return meal.time <= 30;
-  if (form.cookingTime === "45 minutes") return meal.time <= 45;
-  return true;
-};
 
 const plan = computed(() => {
-  const budgetPerMeal = form.budget / Math.max(1, form.meals.length);
-
-  const meals = form.meals.map((slot) => {
-    let pool = mealCatalog.filter((meal) => meal.category === slot && matchesDiet(meal) && matchesTime(meal));
-
-    if (!pool.length) pool = mealCatalog.filter((meal) => meal.category === slot);
-    if (!pool.length) pool = mealCatalog;
-
-    const sorted = [...pool];
-    if (form.goal === "Build muscle") {
-      sorted.sort((a, b) => b.protein - a.protein);
-    } else if (form.goal === "Lose weight") {
-      sorted.sort((a, b) => a.calories - b.calories);
-    } else if (form.goal === "Save money") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (form.goal === "Eat more vegetables") {
-      sorted.sort((a, b) => b.tags.filter((tag) => /fiber|vegetarian|fresh/i.test(tag)).length - a.tags.filter((tag) => /fiber|vegetarian|fresh/i.test(tag)).length);
-    } else {
-      sorted.sort((a, b) => Math.abs(a.price - budgetPerMeal) - Math.abs(b.price - budgetPerMeal));
-    }
-
-    return { slot, meal: sorted[0] };
-  });
+  const meals = aiMeals.value.map((meal) => ({
+    slot: meal.mealType,
+    meal: {
+      name: meal.name,
+      calories: Number(meal.calories) || 0,
+      protein: Number(meal.protein) || 0,
+      time: Number(meal.preparationTime) || 0,
+      price: Number(meal.estimatedCost) || 0,
+      image: meal.imageUrl || '',
+      colors: meal.colors,
+      description: meal.description || '',
+    },
+  }))
 
   return {
     meals,
     calories: meals.reduce((sum, item) => sum + item.meal.calories, 0),
     protein: meals.reduce((sum, item) => sum + item.meal.protein, 0),
     cost: meals.reduce((sum, item) => sum + item.meal.price, 0),
-  };
-});
+  }
+})
 
-const generate = () => {
-  if (!form.meals.length) form.meals = ["Lunch"];
-  generated.value = true;
-  planVersion.value += 1;
+
+const generate = async () => {
+  if (!form.meals.length) {
+    form.meals = ["Lunch"];
+  }
+
+  isGenerating.value = true;
+  errorMessage.value = '';
+
+  try {
+    const response = await fetch(
+      'http://localhost:5000/api/planner/trial-generate',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          goal: form.goal,
+          budget: form.budget,
+          diet: form.diet,
+          meals: form.meals,
+          cookingTime: form.cookingTime,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || 'Failed to generate meal plan.'
+      );
+    }
+
+    aiMeals.value = result.data.meals;
+    generated.value = true;
+    planVersion.value += 1;
+
+  } catch (error) {
+    console.error('AI Trial error:', error);
+    errorMessage.value = error.message || 'Something went wrong. Please try again.';
+  } finally {
+    isGenerating.value = false;
+  }
 };
 
 const reset = () => {
   generated.value = false;
+  aiMeals.value = [];
+  errorMessage.value = '';
 };
 </script>
 
@@ -233,15 +256,38 @@ const reset = () => {
               </select>
             </label>
 
+
             <div class="flex flex-col gap-2 sm:flex-row">
-              <button type="button" class="btn btn-primary flex-1" @click="generate">
-                <ChefHat :size="16" />
-                Generate sample plan
+              <button
+                type="button"
+                class="btn btn-primary flex-1"
+                :disabled="isGenerating"
+                @click="generate"
+              >
+                <RefreshCw v-if="isGenerating" :size="16" class="animate-spin" />
+                <ChefHat v-else :size="16" />
+
+                {{ isGenerating ? 'Generating...' : 'Generate sample plan' }}
               </button>
-              <button v-if="generated" type="button" class="btn btn-outline" aria-label="Reset trial" @click="reset">
+
+              <button
+                v-if="generated"
+                type="button"
+                class="btn btn-outline"
+                aria-label="Reset trial"
+                :disabled="isGenerating"
+                @click="reset"
+              >
                 <RefreshCw :size="15" />
               </button>
             </div>
+            <p
+              v-if="errorMessage"
+              class="text-sm text-red-500"
+              role="alert"
+            >
+              {{ errorMessage }}
+            </p>
           </div>
         </div>
 

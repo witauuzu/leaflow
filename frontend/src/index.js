@@ -15,6 +15,7 @@ import forgotPassword from './pages/authentication/forgot-password.vue'
 import resetPassword from './pages/authentication/reset-password.vue'
 import plannerCreate from './pages/dashboard/planner/planner-create.vue'
 import PlannerResult from './pages/dashboard/planner/planner-result.vue'
+import notFound from './pages/not-found.vue'
 
 const routes = [
   { path: '/', component: landingPage },
@@ -23,21 +24,36 @@ const routes = [
   { path: '/features', component: features },
   { path: '/login', component: login },
   { path: '/register', component: register },
-  { path: '/dashboard', component: dashboard },
+  { path: '/dashboard', component: dashboard, meta: { requiresAuth: true } },
   { path: '/forgot-password', component: forgotPassword},
   { path: '/reset-password', component: resetPassword },
-  { path: '/dashboard/explore', component: exploreMeal },
-  { path: '/dashboard/planner', component: planner },
-  { path: '/dashboard/calendar', component: calendar },
-  { path: '/dashboard/track', component: track },
-  { path: '/dashboard/profile', component: profile },
-  { path: '/dashboard/planner/create', component: plannerCreate },
-  { path: '/dashboard/planner/result', component: PlannerResult },
+  { path: '/dashboard/explore', component: exploreMeal,meta: { requiresAuth: true } },
+  { path: '/dashboard/planner', component: planner, meta: { requiresAuth: true } },
+  { path: '/dashboard/calendar', component: calendar, meta: { requiresAuth: true } },
+  { path: '/dashboard/track', component: track, meta: { requiresAuth: true }},
+  { path: '/dashboard/profile', component: profile, meta: { requiresAuth: true } },
+  { path: '/dashboard/planner/create', component: plannerCreate, meta: { requiresAuth: true } },
+  { path: '/dashboard/planner/result', component: PlannerResult, meta: { requiresAuth: true } },
+  { path: '/:pathMatch(.*)*', component: notFound },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const session = JSON.parse(
+    localStorage.getItem('leaflow-session') || 'null'
+  )
+
+  const isLoggedIn = !!session?.access_token
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 router.afterEach(() => {

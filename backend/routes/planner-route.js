@@ -1232,4 +1232,119 @@ router.get('/:id', authenticateUser, async (req, res) => {
   }
 })
 
+
+// Generate AI meal plan for public AI Trial
+router.post('/trial-generate', async (req, res) => {
+  try {
+    const {
+      goal,
+      budget,
+      diet,
+      meals,
+      cookingTime,
+    } = req.body
+
+    if (
+      !goal ||
+      !budget ||
+      !diet ||
+      !Array.isArray(meals) ||
+      meals.length === 0 ||
+      !cookingTime
+    ) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please complete all meal preferences.',
+      })
+    }
+
+    const ai = await getGeminiClient()
+
+    const prompt = `
+You are a professional meal planner and nutrition assistant.
+
+Create a daily meal plan for ONE person based on these preferences:
+
+- Main goal: ${goal}
+- Daily food budget: IDR ${budget}
+- Diet style: ${diet}
+- Selected meals: ${meals.join(', ')}
+- Maximum cooking time: ${cookingTime}
+
+IMPORTANT RULES:
+1. Generate exactly one meal for each selected meal type.
+2. Respect the selected dietary preference.
+3. Prioritize the user's main goal.
+4. Keep the combined estimated meal costs within the daily budget whenever possible.
+5. Use realistic Indonesian ingredient prices.
+6. Provide realistic nutrition estimates.
+7. Use accessible ingredients.
+8. All costs must be in Indonesian Rupiah.
+9. Each meal must be for one serving.
+10. Cooking time must respect the user's preference whenever possible.
+
+Return ONLY valid JSON using this structure:
+
+{
+  "meals": [
+    {
+      "mealType": "Breakfast",
+      "name": "Meal name",
+      "calories": 400,
+      "protein": 25,
+      "estimatedCost": 15000,
+      "preparationTime": 20,
+      "description": "Short meal description"
+    }
+  ]
+}
+
+Do not include Markdown or text outside the JSON.
+`
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash-lite',
+      contents: prompt,
+    })
+
+    const cleanedResponse = response.text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim()
+
+    const generatedPlan = JSON.parse(cleanedResponse)
+
+    if (!Array.isArray(generatedPlan.meals)) {
+      throw new Error('Invalid meal plan response.')
+    }
+
+    const imageResults = await Promise.all(
+      generatedPlan.meals.map(async (meal) => {
+        const image = await getMealImage(meal.name)
+
+        return {
+          ...meal,
+          imageUrl: image?.imageUrl || null,
+          imageSource: image?.imageSource || null,
+        }
+      })
+    )
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'AI Trial meal plan generated successfully.',
+      data: {
+        meals: imageResults,
+      },
+    })
+  } catch (error) {
+    console.error('AI Trial generation error:', error)
+
+    return res.status(500).json({
+      status: 'fail',
+      message: 'Failed to generate AI Trial meal plan.',
+    })
+  }
+})
+
 module.exports = router

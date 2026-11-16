@@ -1,4 +1,3 @@
-
 const { supabaseAdmin } = require('../config/supabase')
 
 // Cache hasil pencarian Pixabay selama 24 jam
