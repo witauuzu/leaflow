@@ -238,7 +238,7 @@ const handleRegister = async () => {
           <button
             type="submit"
             :disabled="loading"
-            class="mt-3 w-full rounded-full bg-primary-deep py-3 text-sm font-normal text-white transition hover:bg-ink disabled:opacity-60"
+            class="mt-3 w-full rounded-full bg-primary py-3 text-sm font-normal text-white transition hover:bg-ink disabled:opacity-60"
           >
             {{ loading ? 'Creating account...' : 'Create Account' }}
           </button>
