@@ -42,17 +42,36 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const session = JSON.parse(
     localStorage.getItem('leaflow-session') || 'null'
   )
 
-  const isLoggedIn = !!session?.access_token
+  const token = session?.access_token
+
+  let isLoggedIn = false
+
+  if (token) {
+    try {
+      const payload = JSON.parse(
+        atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+      )
+
+      isLoggedIn = !!payload.exp && payload.exp * 1000 > Date.now()
+    } catch {
+      isLoggedIn = false
+    }
+  }
+
+  if (!isLoggedIn) {
+    localStorage.removeItem('leaflow-session')
+  }
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login')
-  } else {
-    next()
+    return {
+      path: '/login',
+      query: { redirect: to.fullPath },
+    }
   }
 })
 
