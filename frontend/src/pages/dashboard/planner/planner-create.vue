@@ -737,7 +737,10 @@ const leavePlanner = () => {
 
           <!-- Manual Nutrition Targets -->
           <div
-            v-if="answers.nutritionTargetMethod === 'manual'"
+            v-if="
+              activeQuestion.type === 'nutritionTargets' &&
+              answers.nutritionTargetMethod === 'manual'
+            "
             class="mt-5 space-y-4 rounded-lg border border-line bg-white p-4"
           >
             <p class="text-sm font-medium text-ink">
